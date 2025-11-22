@@ -1,0 +1,3 @@
+# exclude tmp dirs
+.vs
+out
