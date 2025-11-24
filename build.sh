@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 
 mkdir -p out
 (cd 3rdParty;./update.sh)

@@ -1,4 +1,4 @@
-include(Common)
+﻿include(Common)
 
 project(CoreTest)
 
@@ -11,5 +11,6 @@ add_executable (${PROJECT_NAME}
                 "ConstantsTest.cpp"
                 "VertexTest.cpp"
                 "TriangleTest.cpp"
-                "ShapeTest.cpp" "BoundingObjectTest.cpp")
+                "ShapeTest.cpp" 
+                "BoundingObjectTest.cpp")
 
