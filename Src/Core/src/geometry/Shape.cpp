@@ -1,4 +1,4 @@
-#include "Core.h"
+﻿#include "Core.h"
 
 Shape::Shape()
     : faces()

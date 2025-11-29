@@ -1,4 +1,4 @@
-#include "gtest/gtest.h"
+﻿#include "gtest/gtest.h"
 #include "Core.h"
 
 using namespace std;
@@ -62,4 +62,11 @@ TEST_F(VertexTest, Equality)
     Vertex<double> v3(1, 2, 3 + 2*Limits<double>::CompareEpsilon);
     EXPECT_EQ(v1, v2);
     EXPECT_NE(v1, v3);
+}
+
+TEST_F(VertexTest, Indexing)
+{
+    Vertex<double> v(1, 2, 3);
+    EXPECT_EQ(2, v[1]);
+    EXPECT_THROW(v[3], invalid_argument);
 }

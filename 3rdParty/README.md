@@ -1,4 +1,4 @@
-# 3rdParty
+﻿# 3rdParty
 
 Projects from other sources, configured so that they align with my projects.
 

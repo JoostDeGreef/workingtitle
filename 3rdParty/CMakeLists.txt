@@ -1,2 +1,2 @@
-# Include sub-projects.
+﻿# Include sub-projects.
 add_subdirectory ("GoogleTest")

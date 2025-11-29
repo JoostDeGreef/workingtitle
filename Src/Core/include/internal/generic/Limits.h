@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 template<typename T, bool = std::is_integral<T>::value>
 struct Limits {};

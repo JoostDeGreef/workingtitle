@@ -45,6 +45,8 @@ public:
 
     VALUE calculateVolume() const;
 
+    bool overlap(const BoundingObject<VALUE> &other) const;
+
 private:
     void createBox(const std::vector<Vertex<VALUE>>& vertices);
     void createSphere(const std::vector<Vertex<VALUE>>& vertices);
@@ -126,6 +128,10 @@ inline void BoundingObject<VALUE>::copy(const BoundingObject<VALUE>& other)
     case Type::Sphere:
         sphere = other.sphere;
         break;
+#ifndef NDEBUG
+    default:
+        throw out_of_range("unhandled type");
+#endif
     }
 }
 
@@ -188,6 +194,10 @@ inline void BoundingObject<VALUE>::create(const std::vector<Vertex<VALUE>>& vert
     case Type::Sphere:
         createSphere(vertices);
         break;
+#ifndef NDEBUG
+    default:
+        throw out_of_range("unhandled type");
+#endif
     }
 }
 
@@ -202,14 +212,71 @@ inline VALUE BoundingObject<VALUE>::calculateVolume() const
 {
     switch (type)
     {
-    case Type::None:
-    case Type::Auto:
-        return VALUE(-1);
     case Type::Box:
         return (box.max.x-box.min.x) * (box.max.y - box.min.y) * (box.max.z - box.min.z);
     case Type::Sphere:
         return 4 * sphere.radius * sphere.radius * sphere.radius * Constants::Pi / 3;
+    case Type::None:
+    case Type::Auto:
+        return VALUE(-1);
     }
+#ifndef NDEBUG
+    throw out_of_range("unhandled type");
+#endif
+}
+
+template<typename VALUE>
+inline bool BoundingObject<VALUE>::overlap(const BoundingObject<VALUE>& other) const
+{
+    if (type == Type::Box)
+    {
+        if (other.type == Type::Box)
+        {
+            return
+                box.max.x >= other.box.min.x &&
+                box.min.x <= other.box.max.x &&
+                box.max.y >= other.box.min.y &&
+                box.min.y <= other.box.max.y &&
+                box.max.z >= other.box.min.z &&
+                box.min.z <= other.box.max.z;
+        }
+        else if (other.type == Type::Sphere)
+        {
+            return other.overlap(*this);
+        }
+    }
+    else if (type == Type::Sphere)
+    {
+        if (other.type == Type::Box)
+        {
+            if( sphere.center.x + sphere.radius >= other.box.min.x &&
+                sphere.center.x - sphere.radius <= other.box.max.x &&
+                sphere.center.y + sphere.radius >= other.box.min.y &&
+                sphere.center.y - sphere.radius <= other.box.max.y &&
+                sphere.center.z + sphere.radius >= other.box.min.z &&
+                sphere.center.z - sphere.radius <= other.box.max.z)
+            {
+                Vertex<VALUE> corner = sphere.center;
+                for (size_t i = 0; i < 3; ++i)
+                {
+                    if (sphere.center[i] <= other.box.min[i]) corner[i] = other.box.min[i];
+                    else if (sphere.center[i] >= other.box.max[i]) corner[i] = other.box.max[i];
+                }
+                if(sphere.center.dist(corner) > sphere.radius)
+                {
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        }
+        else if (other.type == Type::Sphere)
+        {
+            auto vec = sphere.center - other.sphere.center;
+            return (vec.innerProduct(vec) <= Numerics::Sqr(sphere.radius + other.sphere.radius));
+        }
+    }
+    return false;
 }
 
 template<typename VALUE>
@@ -235,16 +302,15 @@ inline void BoundingObject<VALUE>::createSphere(const std::vector<Vertex<VALUE>>
     // function to find the vertex from the list furthest from the pivot
     auto findFurthestVertex = [](const Vertex<VALUE> &pivot, const std::vector<Vertex<VALUE>>& vertices)
         {
-            VALUE dist = 0;
+            VALUE dist2 = 0;
             Vertex<VALUE> p = pivot;
             for (const auto& vertex : vertices)
             {
-                auto tmpVec = vertex - pivot;
-                auto tmpDist = tmpVec.innerProduct(tmpVec); // radius^2
-                if (tmpDist > dist)
+                auto tmpDist2 = vertex.dist2(pivot); // radius^2
+                if (tmpDist2 > dist2)
                 {
                     p = vertex;
-                    dist = tmpDist;
+                    dist2 = tmpDist2;
                 }
             }
             return p;
@@ -253,18 +319,17 @@ inline void BoundingObject<VALUE>::createSphere(const std::vector<Vertex<VALUE>>
     auto findOutliers = [](Vertex<VALUE>& center, VALUE radius2, const std::vector<Vertex<VALUE>>& vertices)
         {
             std::vector<Vertex<VALUE>> outliers;
-            VALUE distMax = radius2;
+            VALUE dist2Max = radius2;
             Vertex<VALUE> furthest = center;
             for (const auto& vertex : vertices)
             {
-                auto vec = vertex - center;
-                auto dist = vec.innerProduct(vec);
-                if (dist > radius2)
+                auto dist2 = vertex.dist2(center);
+                if (dist2 > radius2)
                 {
                     outliers.emplace_back(vertex);
-                    if (dist > distMax)
+                    if (dist2 > dist2Max)
                     {
-                        distMax = dist;
+                        dist2Max = dist2;
                         furthest = vertex;
                     }
                 }

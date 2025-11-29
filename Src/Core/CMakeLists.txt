@@ -1,4 +1,4 @@
-include(Common)
+﻿include(Common)
 
 project(Core VERSION 1.0.0 DESCRIPTION "Core functions")
 

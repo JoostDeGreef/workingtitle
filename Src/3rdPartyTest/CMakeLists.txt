@@ -1,4 +1,4 @@
-include(Common)
+﻿include(Common)
 
 project(3rdPartyTest)
 

@@ -1,4 +1,4 @@
-# Include sub-projects.
+﻿# Include sub-projects.
 
 add_subdirectory ("3rdPartyTest")
 add_subdirectory ("Core")
