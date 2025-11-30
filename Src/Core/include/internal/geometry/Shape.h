@@ -1,22 +1,30 @@
 ﻿#pragma once
 
+#include "internal/geometry/BoundingObject.h"
+#include "internal/geometry/Faces.h"
+#include "internal/geometry/Vertices.h"
+
 class Shape
 {
 public:
-    typedef size_t index;
-    typedef Triangle<index> triangle;
-    typedef Vertex<double> vertex;
-
     Shape();
     Shape(const Shape & other);
     Shape(Shape && other) noexcept;
 
-    void Scale(const double& factor);
+    // Scale (multiply) all vertices with this factor
+    void scale(const double& factor);
 
-    void Optimize();
+    // Remove unused vertices
+    void optimize();
 
 private:
-    std::vector<triangle> faces;
-    std::vector<vertex> vertices;
+    // Vertices are stored in the shape:
+    // - to save space (same vertex used in multiple faces)
+    // - so transformations can be applied on all vertices at once
+    Vertices vertices;
+
+    Faces faces;
+
+    BoundingObject bounds;
 };
 

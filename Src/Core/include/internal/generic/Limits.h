@@ -1,5 +1,8 @@
 ﻿#pragma once
 
+#include <limits>
+#include <type_traits>
+
 template<typename T, bool = std::is_integral<T>::value>
 struct Limits {};
 

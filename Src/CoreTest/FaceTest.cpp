@@ -4,7 +4,7 @@
 using namespace std;
 using namespace testing;
 
-class TriangleTest : public Test
+class FaceTest : public Test
 {
 protected:
     virtual void SetUp()
@@ -16,6 +16,6 @@ protected:
     }
 };
 
-TEST_F(TriangleTest, Constructor)
+TEST_F(FaceTest, Constructor)
 {
 }

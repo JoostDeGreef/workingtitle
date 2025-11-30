@@ -1,12 +1,16 @@
 ﻿#pragma once
 
-template<typename COORDINATE>
+#include <stdexcept>
+
+#include "internal/generic/Numerics.h"
+#include "internal/generic/Scalar.h"
+
 class Vertex
 {
 public:
-    COORDINATE x;
-    COORDINATE y;
-    COORDINATE z;
+    Scalar x;
+    Scalar y;
+    Scalar z;
 
     Vertex() 
         : x(0)
@@ -14,74 +18,69 @@ public:
         , z(0)
     {}
     Vertex(
-        const COORDINATE x,
-        const COORDINATE y,
-        const COORDINATE z)
+        const Scalar x,
+        const Scalar y,
+        const Scalar z)
         : x(x)
         , y(y)
         , z(z)
     {}
     Vertex(
-        const Vertex<COORDINATE>& other);
+        const Vertex& other);
     Vertex(
-        Vertex<COORDINATE>&& other) noexcept;
+        Vertex&& other) noexcept;
 
-    Vertex<COORDINATE>& operator = (const Vertex<COORDINATE>& other);
-    Vertex<COORDINATE>& operator = (Vertex<COORDINATE>&& other) noexcept;
-    COORDINATE& operator [] (const size_t index);
-    COORDINATE operator [] (const size_t index) const;
+    Vertex& operator = (const Vertex& other);
+    Vertex& operator = (Vertex&& other) noexcept;
+    Scalar& operator [] (const size_t index);
+    Scalar operator [] (const size_t index) const;
 
-    void copy(const Vertex<COORDINATE>& other);
-    void swap(Vertex<COORDINATE>& other) noexcept;
+    void copy(const Vertex& other);
+    void swap(Vertex& other) noexcept;
 
-    Vertex<COORDINATE>   operator + (const Vertex<COORDINATE>& other) const;
-    Vertex<COORDINATE> & operator += (const Vertex<COORDINATE>& other);
+    Vertex   operator + (const Vertex& other) const;
+    Vertex & operator += (const Vertex& other);
 
-    Vertex<COORDINATE>   operator - (const Vertex<COORDINATE>& other) const;
-    Vertex<COORDINATE> & operator -= (const Vertex<COORDINATE>& other);
+    Vertex   operator - (const Vertex& other) const;
+    Vertex & operator -= (const Vertex& other);
 
-    Vertex<COORDINATE>   operator * (const COORDINATE& factor) const;
-    Vertex<COORDINATE> & operator *= (const COORDINATE& factor);
+    Vertex   operator * (const Scalar& factor) const;
+    Vertex & operator *= (const Scalar& factor);
 
-    Vertex<COORDINATE>   operator / (const COORDINATE& factor) const;
-    Vertex<COORDINATE> & operator /= (const COORDINATE& factor);
+    Vertex   operator / (const Scalar& factor) const;
+    Vertex & operator /= (const Scalar& factor);
 
-    bool operator == (const Vertex<COORDINATE>& other) const;
-    bool operator != (const Vertex<COORDINATE>& other) const;
+    bool operator == (const Vertex& other) const;
+    bool operator != (const Vertex& other) const;
 
-    COORDINATE innerProduct(const Vertex<COORDINATE>& other) const;
-    COORDINATE dist2(const Vertex<COORDINATE>& other) const;
-    COORDINATE dist(const Vertex<COORDINATE>& other) const;
+    Scalar innerProduct(const Vertex& other) const;
+    Scalar dist2(const Vertex& other) const;
+    Scalar dist(const Vertex& other) const;
 };
 
-template<typename COORDINATE>
-inline Vertex<COORDINATE>::Vertex(const Vertex<COORDINATE>& other)
+inline Vertex::Vertex(const Vertex& other)
 {
     copy(other);
 }
 
-template<typename COORDINATE>
-inline Vertex<COORDINATE>::Vertex(Vertex<COORDINATE>&& other) noexcept
+inline Vertex::Vertex(Vertex&& other) noexcept
 {
     swap(other);
 }
 
-template<typename COORDINATE>
-inline Vertex<COORDINATE>& Vertex<COORDINATE>::operator=(const Vertex<COORDINATE>& other)
+inline Vertex& Vertex::operator=(const Vertex& other)
 {
     copy(other);
     return *this;
 }
 
-template<typename COORDINATE>
-inline Vertex<COORDINATE>& Vertex<COORDINATE>::operator=(Vertex<COORDINATE>&& other) noexcept
+inline Vertex& Vertex::operator=(Vertex&& other) noexcept
 {
     swap(other);
     return *this;
 }
 
-template<typename COORDINATE>
-inline COORDINATE& Vertex<COORDINATE>::operator[](const size_t index)
+inline Scalar& Vertex::operator[](const size_t index)
 {
     switch (index)
     {
@@ -90,12 +89,11 @@ inline COORDINATE& Vertex<COORDINATE>::operator[](const size_t index)
     case 2: return z;
     }
 #ifndef NDEBUG
-    throw invalid_argument("index out of bounds");
+    throw std::invalid_argument("index out of bounds");
 #endif // NDEBUG
 }
 
-template<typename COORDINATE>
-inline COORDINATE Vertex<COORDINATE>::operator[](const size_t index) const
+inline Scalar Vertex::operator[](const size_t index) const
 {
     switch (index)
     {
@@ -104,34 +102,30 @@ inline COORDINATE Vertex<COORDINATE>::operator[](const size_t index) const
     case 2: return z;
     }
 #ifndef NDEBUG
-    throw invalid_argument("index out of bounds");
+    throw std::invalid_argument("index out of bounds");
 #endif // NDEBUG
 }
 
-template<typename COORDINATE>
-inline void Vertex<COORDINATE>::copy(const Vertex<COORDINATE>& other)
+inline void Vertex::copy(const Vertex& other)
 {
     x = other.x;
     y = other.y;
     z = other.z;
 }
 
-template<typename COORDINATE>
-inline void Vertex<COORDINATE>::swap(Vertex<COORDINATE>& other) noexcept
+inline void Vertex::swap(Vertex& other) noexcept
 {
     std::swap(x, other.x);
     std::swap(y, other.y);
     std::swap(z, other.z);
 }
 
-template<typename COORDINATE>
-inline Vertex<COORDINATE> Vertex<COORDINATE>::operator + (const Vertex<COORDINATE>& other) const
+inline Vertex Vertex::operator + (const Vertex& other) const
 {
-    return Vertex<COORDINATE>(*this)+=other;
+    return Vertex(*this)+=other;
 }
 
-template<typename COORDINATE>
-inline Vertex<COORDINATE> & Vertex<COORDINATE>::operator += (const Vertex<COORDINATE>& other)
+inline Vertex & Vertex::operator += (const Vertex& other)
 {
     x += other.x;
     y += other.y;
@@ -139,14 +133,12 @@ inline Vertex<COORDINATE> & Vertex<COORDINATE>::operator += (const Vertex<COORDI
     return *this;
 }
 
-template<typename COORDINATE>
-inline Vertex<COORDINATE> Vertex<COORDINATE>::operator - (const Vertex<COORDINATE>& other) const
+inline Vertex Vertex::operator - (const Vertex& other) const
 {
-    return Vertex<COORDINATE>(*this) -= other;
+    return Vertex(*this) -= other;
 }
 
-template<typename COORDINATE>
-inline Vertex<COORDINATE>& Vertex<COORDINATE>::operator -= (const Vertex<COORDINATE>& other)
+inline Vertex& Vertex::operator -= (const Vertex& other)
 {
     x -= other.x;
     y -= other.y;
@@ -154,14 +146,12 @@ inline Vertex<COORDINATE>& Vertex<COORDINATE>::operator -= (const Vertex<COORDIN
     return *this;
 }
 
-template<typename COORDINATE>
-inline Vertex<COORDINATE> Vertex<COORDINATE>::operator * (const COORDINATE& factor) const
+inline Vertex Vertex::operator * (const Scalar& factor) const
 {
-    return Vertex<COORDINATE>(*this) *= factor;
+    return Vertex(*this) *= factor;
 }
 
-template<typename COORDINATE>
-inline Vertex<COORDINATE>& Vertex<COORDINATE>::operator *= (const COORDINATE& factor)
+inline Vertex& Vertex::operator *= (const Scalar& factor)
 {
     x *= factor;
     y *= factor;
@@ -169,14 +159,12 @@ inline Vertex<COORDINATE>& Vertex<COORDINATE>::operator *= (const COORDINATE& fa
     return *this;
 }
 
-template<typename COORDINATE>
-inline Vertex<COORDINATE> Vertex<COORDINATE>::operator/(const COORDINATE& factor) const
+inline Vertex Vertex::operator/(const Scalar& factor) const
 {
-    return Vertex<COORDINATE>(*this) /= factor;
+    return Vertex(*this) /= factor;
 }
 
-template<typename COORDINATE>
-inline Vertex<COORDINATE>& Vertex<COORDINATE>::operator/=(const COORDINATE& factor)
+inline Vertex& Vertex::operator/=(const Scalar& factor)
 {
     x /= factor;
     y /= factor;
@@ -184,37 +172,32 @@ inline Vertex<COORDINATE>& Vertex<COORDINATE>::operator/=(const COORDINATE& fact
     return *this;
 }
 
-template<typename COORDINATE>
-inline bool Vertex<COORDINATE>::operator == (const Vertex<COORDINATE>& other) const
+inline bool Vertex::operator == (const Vertex& other) const
 {
     return Numerics::Equal(x, other.x)
         && Numerics::Equal(y, other.y)
         && Numerics::Equal(z, other.z);
 }
 
-template<typename COORDINATE>
-inline bool Vertex<COORDINATE>::operator != (const Vertex<COORDINATE>& other) const
+inline bool Vertex::operator != (const Vertex& other) const
 {
     return Numerics::NotEqual(x, other.x)
         || Numerics::NotEqual(y, other.y)
         || Numerics::NotEqual(z, other.z);
 }
 
-template<typename COORDINATE>
-inline COORDINATE Vertex<COORDINATE>::innerProduct(const Vertex<COORDINATE>& other) const
+inline Scalar Vertex::innerProduct(const Vertex& other) const
 {
     return x * other.x + y * other.y + z * other.z;
 }
 
-template<typename COORDINATE>
-inline COORDINATE Vertex<COORDINATE>::dist2(const Vertex<COORDINATE>& other) const
+inline Scalar Vertex::dist2(const Vertex& other) const
 {
     auto tmp = *this - other;
     return tmp.innerProduct(tmp);
 }
 
-template<typename COORDINATE>
-inline COORDINATE Vertex<COORDINATE>::dist(const Vertex<COORDINATE>& other) const
+inline Scalar Vertex::dist(const Vertex& other) const
 {
     return Numerics::Sqrt(dist2(other));
 }

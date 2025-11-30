@@ -1,6 +1,13 @@
 ﻿#pragma once
 
-template<typename VALUE>
+#include <algorithm>
+#include <cassert>
+
+#include "internal/generic/Constants.h"
+
+#include "internal/geometry/Vertex.h"
+#include "internal/geometry/Vertices.h"
+
 class BoundingObject
 {
 public:
@@ -13,43 +20,48 @@ public:
     };
     struct Box
     {
-        Vertex<VALUE> min;
-        Vertex<VALUE> max;
+        Vertex min;
+        Vertex max;
     };
     struct Sphere
     {
-        Vertex<VALUE> center;
-        VALUE radius;
+        Vertex center;
+        Scalar radius;
     };
 
     BoundingObject();
     BoundingObject(
-        const Vertex<VALUE>& min,
-        const Vertex<VALUE>& max);
+        const Vertex& min,
+        const Vertex& max);
     BoundingObject(
-        const Vertex<VALUE>& center,
-        const VALUE& radius);
-    BoundingObject(const BoundingObject<VALUE>& other);
-    BoundingObject(BoundingObject<VALUE>&& other) noexcept;
-    BoundingObject(const std::vector<Vertex<VALUE>>& vertices, const Type type = Type::Auto);
+        const Vertex& center,
+        const Scalar& radius);
+    BoundingObject(const BoundingObject& other);
+    BoundingObject(BoundingObject&& other) noexcept;
+    BoundingObject(const Vertices& vertices, const Type type = Type::Auto);
 
-    BoundingObject<VALUE>& operator = (const BoundingObject<VALUE>& other);
-    BoundingObject<VALUE>& operator = (BoundingObject<VALUE>&& other) noexcept;
+    BoundingObject& operator = (const BoundingObject& other);
+    BoundingObject& operator = (BoundingObject&& other) noexcept;
 
-    void copy(const BoundingObject<VALUE>& other);
-    void swap(BoundingObject<VALUE>& other);
+    void copy(const BoundingObject& other);
+    void swap(BoundingObject& other);
 
-    void create(const std::vector<Vertex<VALUE>>& vertices, const Type type);
+    void create(const Vertices& vertices, const Type type);
 
     Type getType() const;
 
-    VALUE calculateVolume() const;
+    Scalar calculateVolume() const;
 
-    bool overlap(const BoundingObject<VALUE> &other) const;
+    bool overlap(const BoundingObject &other) const;
+
+    void scale(const double& factor);
+
+    void invalidate();
+    operator bool() const;
 
 private:
-    void createBox(const std::vector<Vertex<VALUE>>& vertices);
-    void createSphere(const std::vector<Vertex<VALUE>>& vertices);
+    void createBox(const Vertices& vertices);
+    void createSphere(const Vertices& vertices);
 
     Type type;
     union
@@ -59,62 +71,53 @@ private:
     };
 };
 
-template<typename VALUE>
-inline BoundingObject<VALUE>::BoundingObject()
+inline BoundingObject::BoundingObject()
     : type(Type::None)
 {}
 
-template<typename VALUE>
-inline BoundingObject<VALUE>::BoundingObject(const Vertex<VALUE>&min, const Vertex<VALUE>&max)
+inline BoundingObject::BoundingObject(const Vertex & min, const Vertex & max)
     : type(Type::Box)
 {
     box.min = min;
     box.max = max;
 }
 
-template<typename VALUE>
-inline BoundingObject<VALUE>::BoundingObject(const Vertex<VALUE>& center, const VALUE& radius)
+inline BoundingObject::BoundingObject(const Vertex& center, const Scalar& radius)
     : type(Type::Sphere)
 {
     sphere.center = center;
     sphere.radius = radius;
 }
 
-template<typename VALUE>
-inline BoundingObject<VALUE>::BoundingObject(const BoundingObject<VALUE>& other)
+inline BoundingObject::BoundingObject(const BoundingObject& other)
 {
     copy(other);
 }
 
-template<typename VALUE>
-inline BoundingObject<VALUE>::BoundingObject(BoundingObject<VALUE>&& other) noexcept
+inline BoundingObject::BoundingObject(BoundingObject&& other) noexcept
     : type(Type::None)
 {
     swap(other);
 }
 
-template<typename VALUE>
-inline BoundingObject<VALUE>::BoundingObject(const std::vector<Vertex<VALUE>>& vertices, const Type type)
+inline BoundingObject::BoundingObject(const Vertices& vertices, const Type type)
 {
     create(vertices, type);
 }
 
-template<typename VALUE>
-inline BoundingObject<VALUE>& BoundingObject<VALUE>::operator=(const BoundingObject<VALUE>& other)
+inline BoundingObject& BoundingObject::operator=(const BoundingObject& other)
 {
     copy(other);
     return *this;
 }
 
-template<typename VALUE>
-inline BoundingObject<VALUE>& BoundingObject<VALUE>::operator=(BoundingObject<VALUE>&& other) noexcept
+inline BoundingObject& BoundingObject::operator=(BoundingObject&& other) noexcept
 {
     swap(other);
     return *this;
 }
 
-template<typename VALUE>
-inline void BoundingObject<VALUE>::copy(const BoundingObject<VALUE>& other)
+inline void BoundingObject::copy(const BoundingObject& other)
 {
     type = other.type;
     switch (type)
@@ -128,15 +131,12 @@ inline void BoundingObject<VALUE>::copy(const BoundingObject<VALUE>& other)
     case Type::Sphere:
         sphere = other.sphere;
         break;
-#ifndef NDEBUG
     default:
-        throw out_of_range("unhandled type");
-#endif
+        assert(false); // unhandled type
     }
 }
 
-template<typename VALUE>
-inline void BoundingObject<VALUE>::swap(BoundingObject<VALUE>& other)
+inline void BoundingObject::swap(BoundingObject& other)
 {
     switch (type)
     {
@@ -161,11 +161,12 @@ inline void BoundingObject<VALUE>::swap(BoundingObject<VALUE>& other)
             other.sphere = tmp;
         }
         break;
+    default:
+        assert(false); // unhandled type
     }
 }
 
-template<typename VALUE>
-inline void BoundingObject<VALUE>::create(const std::vector<Vertex<VALUE>>& vertices, const Type type)
+inline void BoundingObject::create(const Vertices& vertices, const Type type)
 {
     switch (type)
     {
@@ -174,8 +175,8 @@ inline void BoundingObject<VALUE>::create(const std::vector<Vertex<VALUE>>& vert
         break;
     case Type::Auto:
         {
-            auto boBox = BoundingObject<VALUE>(vertices, Type::Box);
-            auto boSphere = BoundingObject<VALUE>(vertices, Type::Sphere);
+            auto boBox = BoundingObject(vertices, Type::Box);
+            auto boSphere = BoundingObject(vertices, Type::Sphere);
             auto boBoxVolume = boBox.calculateVolume();
             auto boSphereVolume = boSphere.calculateVolume();
             if ( boBoxVolume <= boSphereVolume )
@@ -194,21 +195,17 @@ inline void BoundingObject<VALUE>::create(const std::vector<Vertex<VALUE>>& vert
     case Type::Sphere:
         createSphere(vertices);
         break;
-#ifndef NDEBUG
     default:
-        throw out_of_range("unhandled type");
-#endif
+        assert(false); // unhandled type
     }
 }
 
-template<typename VALUE>
-inline typename BoundingObject<VALUE>::Type BoundingObject<VALUE>::getType() const
+inline typename BoundingObject::Type BoundingObject::getType() const
 {
     return type;
 }
 
-template<typename VALUE>
-inline VALUE BoundingObject<VALUE>::calculateVolume() const
+inline Scalar BoundingObject::calculateVolume() const
 {
     switch (type)
     {
@@ -218,15 +215,13 @@ inline VALUE BoundingObject<VALUE>::calculateVolume() const
         return 4 * sphere.radius * sphere.radius * sphere.radius * Constants::Pi / 3;
     case Type::None:
     case Type::Auto:
-        return VALUE(-1);
+        return Scalar(-1);
+    default:
+        assert(false); // unhandled type
     }
-#ifndef NDEBUG
-    throw out_of_range("unhandled type");
-#endif
 }
 
-template<typename VALUE>
-inline bool BoundingObject<VALUE>::overlap(const BoundingObject<VALUE>& other) const
+inline bool BoundingObject::overlap(const BoundingObject& other) const
 {
     if (type == Type::Box)
     {
@@ -256,7 +251,7 @@ inline bool BoundingObject<VALUE>::overlap(const BoundingObject<VALUE>& other) c
                 sphere.center.z + sphere.radius >= other.box.min.z &&
                 sphere.center.z - sphere.radius <= other.box.max.z)
             {
-                Vertex<VALUE> corner = sphere.center;
+                Vertex corner = sphere.center;
                 for (size_t i = 0; i < 3; ++i)
                 {
                     if (sphere.center[i] <= other.box.min[i]) corner[i] = other.box.min[i];
@@ -279,58 +274,87 @@ inline bool BoundingObject<VALUE>::overlap(const BoundingObject<VALUE>& other) c
     return false;
 }
 
-template<typename VALUE>
-inline void BoundingObject<VALUE>::createBox(const std::vector<Vertex<VALUE>>& vertices)
+inline void BoundingObject::scale(const double& factor)
 {
-    type = Type::Box;
-    box.min = Vertex<VALUE>(Limits<VALUE>::MaxValue, Limits<VALUE>::MaxValue, Limits<VALUE>::MaxValue);
-    box.max = Vertex<VALUE>(Limits<VALUE>::MinValue, Limits<VALUE>::MinValue, Limits<VALUE>::MinValue);
-    for (const auto& vertex : vertices)
+    switch (type)
     {
-        box.min.x = std::min(box.min.x, vertex.x);
-        box.min.y = std::min(box.min.y, vertex.y);
-        box.min.z = std::min(box.min.z, vertex.z);
-        box.max.x = std::max(box.max.x, vertex.x);
-        box.max.y = std::max(box.max.y, vertex.y);
-        box.max.z = std::max(box.max.z, vertex.z);
+    case Type::Box:
+        box.min *= factor;
+        box.max *= factor;
+        break;
+    case Type::Sphere:
+        sphere.center *= factor;
+        sphere.radius *= factor;
+        break;
+    case Type::None:
+    case Type::Auto:
+        break;
+    default:
+        assert(false); // unhandled type
+        break;
     }
 }
 
-template<typename VALUE>
-inline void BoundingObject<VALUE>::createSphere(const std::vector<Vertex<VALUE>>& vertices)
+inline void BoundingObject::invalidate()
 {
-    // function to find the vertex from the list furthest from the pivot
-    auto findFurthestVertex = [](const Vertex<VALUE> &pivot, const std::vector<Vertex<VALUE>>& vertices)
+    type = Type::None;
+}
+
+inline BoundingObject::operator bool() const
+{
+    return type == Type::Box || type == Type::Sphere;
+}
+
+inline void BoundingObject::createBox(const Vertices& vertices)
+{
+    type = Type::Box;
+    box.min = Vertex(Limits<Scalar>::MaxValue, Limits<Scalar>::MaxValue, Limits<Scalar>::MaxValue);
+    box.max = Vertex(Limits<Scalar>::MinValue, Limits<Scalar>::MinValue, Limits<Scalar>::MinValue);
+    for (const auto& Vertex : vertices)
+    {
+        box.min.x = std::min(box.min.x, Vertex.x);
+        box.min.y = std::min(box.min.y, Vertex.y);
+        box.min.z = std::min(box.min.z, Vertex.z);
+        box.max.x = std::max(box.max.x, Vertex.x);
+        box.max.y = std::max(box.max.y, Vertex.y);
+        box.max.z = std::max(box.max.z, Vertex.z);
+    }
+}
+
+inline void BoundingObject::createSphere(const Vertices& vertices)
+{
+    // function to find the Vertex from the list furthest from the pivot
+    auto findFurthestVertex = [](const Vertex &pivot, const Vertices& vertices)
         {
-            VALUE dist2 = 0;
-            Vertex<VALUE> p = pivot;
-            for (const auto& vertex : vertices)
+            Scalar dist2 = 0;
+            Vertex p = pivot;
+            for (const auto& Vertex : vertices)
             {
-                auto tmpDist2 = vertex.dist2(pivot); // radius^2
+                auto tmpDist2 = Vertex.dist2(pivot); // radius^2
                 if (tmpDist2 > dist2)
                 {
-                    p = vertex;
+                    p = Vertex;
                     dist2 = tmpDist2;
                 }
             }
             return p;
         };
-    // function to find the vertex outside the circle and update the circle (center + radius^2)
-    auto findOutliers = [](Vertex<VALUE>& center, VALUE radius2, const std::vector<Vertex<VALUE>>& vertices)
+    // function to find the Vertex outside the circle and update the circle (center + radius^2)
+    auto findOutliers = [](Vertex& center, Scalar radius2, const Vertices& vertices)
         {
-            std::vector<Vertex<VALUE>> outliers;
-            VALUE dist2Max = radius2;
-            Vertex<VALUE> furthest = center;
-            for (const auto& vertex : vertices)
+            Vertices outliers;
+            Scalar dist2Max = radius2;
+            Vertex furthest = center;
+            for (const auto& Vertex : vertices)
             {
-                auto dist2 = vertex.dist2(center);
+                auto dist2 = Vertex.dist2(center);
                 if (dist2 > radius2)
                 {
-                    outliers.emplace_back(vertex);
+                    outliers.emplace_back(Vertex);
                     if (dist2 > dist2Max)
                     {
                         dist2Max = dist2;
-                        furthest = vertex;
+                        furthest = Vertex;
                     }
                 }
             }
@@ -345,21 +369,21 @@ inline void BoundingObject<VALUE>::createSphere(const std::vector<Vertex<VALUE>>
             return outliers;
         };
     // determine cloud center
-    Vertex<VALUE> center;
-    for (const auto& vertex : vertices)
+    Vertex center;
+    for (const auto& Vertex : vertices)
     {
-        center += vertex;
+        center += Vertex;
     }
-    center /= vertices.size();
-    // find vertex p1 furthest from center
+    center /= (Scalar)vertices.size();
+    // find Vertex p1 furthest from center
     auto p1 = findFurthestVertex(center, vertices);
-    // find vertex p2 furthest from p1 
+    // find Vertex p2 furthest from p1 
     auto p2 = findFurthestVertex(p1, vertices);
     // calculate center and radius squared
     center = (p1 + p2) / 2;
-    auto radius2 = (p1 - p2).innerProduct(p1 - p2) / 4; // /4, this is radius^2
+    auto radius2 = p1.dist2(p2) / 4; // /4, this is radius^2
     // find vertices outside of initial sphere
-    std::vector<Vertex<VALUE>> outliers = findOutliers(center, radius2, vertices);
+    std::vector<Vertex> outliers = findOutliers(center, radius2, vertices);
     // increase bouding sphere untill there are no more outliers
     while (!outliers.empty())
     {

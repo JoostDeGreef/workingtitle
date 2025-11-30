@@ -10,7 +10,7 @@ add_executable (${PROJECT_NAME}
                 "LimitsTest.cpp"
                 "ConstantsTest.cpp"
                 "VertexTest.cpp"
-                "TriangleTest.cpp"
+                "FaceTest.cpp"
                 "ShapeTest.cpp" 
                 "BoundingObjectTest.cpp")
 

@@ -3,8 +3,6 @@
 # No idea what to call this yet
 project ("workintitle" VERSION 0.0.1)
 
-include(Common)
-
 # Output will land here
 SET(GLOBAL_PREFIX
     ${PROJECT_SOURCE_DIR}/out/${CMAKE_BUILD_TYPE} CACHE
@@ -15,6 +13,8 @@ SET(GLOBAL_BUILD_DIRECTORY
 SET(CMAKE_MODULE_PATH
     ${PROJECT_SOURCE_DIR}/cmake CACHE
     PATH "Directory where .cmake files are stored." FORCE)
+
+include(Common)
 
 # Include sub-projects.
 add_subdirectory ("3rdParty")

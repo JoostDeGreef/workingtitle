@@ -1,5 +1,9 @@
 ﻿#pragma once
 
+#include <random>
+
+#include "Limits.h"
+
 namespace Numerics
 {
     // random number [0.0, max)

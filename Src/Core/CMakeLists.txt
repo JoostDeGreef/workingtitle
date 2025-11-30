@@ -5,7 +5,8 @@ project(Core VERSION 1.0.0 DESCRIPTION "Core functions")
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 add_library (${PROJECT_NAME}
-             "src/Core.cpp" "include/internal/geometry/Shape.h" "src/geometry/Shape.cpp" "include/internal/geometry/BoundingObject.h")
+             "src/Core.cpp" 
+             "src/geometry/Shape.cpp")
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
 

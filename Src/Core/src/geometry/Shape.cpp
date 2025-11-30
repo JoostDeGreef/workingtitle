@@ -1,52 +1,58 @@
-﻿#include "Core.h"
+﻿#include "internal/geometry/Shape.h"
 
 Shape::Shape()
     : faces()
     , vertices()
+    , bounds()
 {}
 
 Shape::Shape(const Shape& other)
     : faces(other.faces)
     , vertices(other.vertices)
+    , bounds(other.bounds)
 {}
 
 Shape::Shape(Shape&& other) noexcept
     : faces(std::move(other.faces))
     , vertices(std::move(other.vertices))
+    , bounds(std::move(other.bounds))
 {}
 
-void Shape::Scale(const double& factor)
+void Shape::scale(const double& factor)
 {
     for (auto& vertex : vertices)
     {
         vertex *= factor;
     }
+    bounds.scale(factor);
 }
 
-void Shape::Optimize()
+void Shape::optimize()
 {
     std::vector<size_t> counts(vertices.size(), 0);
     for (const auto& face : faces)
     {
-        ++counts[face.points[0]];
-        ++counts[face.points[1]];
-        ++counts[face.points[2]];
+        for (const auto& point : face)
+        {
+            ++counts[point];
+        }
     }
     size_t j = 0;
-    std::vector<index> mapping(vertices.size(), 0);
+    std::vector<Index> mapping(vertices.size(), 0);
     for (size_t i = 0; i < counts.size(); ++i)
     {
         if (counts[i] != 0)
         {
             vertices[i].swap(vertices[j]);
-            mapping[i] = j++;
+            mapping[i] = (Index)j++;
         }
     }
     vertices.resize(j);
     for (auto& face : faces)
     {
-        face.points[0] = mapping[face.points[0]];
-        face.points[1] = mapping[face.points[1]];
-        face.points[2] = mapping[face.points[2]];
+        for (auto& point : face)
+        {
+            point = mapping[point];
+        }
     }
 }
