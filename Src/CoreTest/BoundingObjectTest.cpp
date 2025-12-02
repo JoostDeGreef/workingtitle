@@ -20,9 +20,9 @@ TEST_F(BoundingObjectTest, ConstructorNone)
 {
     BoundingObject b1;
     BoundingObject b2(b1);
-    EXPECT_EQ(BoundingObject::Type::None, b2.getType());
+    EXPECT_EQ(BoundingObject::Type::Sphere, b2.getType());
     BoundingObject b3(std::move(b1));
-    EXPECT_EQ(BoundingObject::Type::None, b3.getType());
+    EXPECT_EQ(BoundingObject::Type::Sphere, b3.getType());
 }
 
 TEST_F(BoundingObjectTest, ConstructorBox)

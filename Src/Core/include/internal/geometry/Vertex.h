@@ -53,9 +53,11 @@ public:
     bool operator == (const Vertex& other) const;
     bool operator != (const Vertex& other) const;
 
+    Vertex crossProduct(const Vertex& other) const;
     Scalar innerProduct(const Vertex& other) const;
     Scalar dist2(const Vertex& other) const;
     Scalar dist(const Vertex& other) const;
+    Scalar length() const;
 };
 
 inline Vertex::Vertex(const Vertex& other)
@@ -186,6 +188,11 @@ inline bool Vertex::operator != (const Vertex& other) const
         || Numerics::NotEqual(z, other.z);
 }
 
+inline Vertex Vertex::crossProduct(const Vertex& other) const
+{
+    return Vertex(y*other.z - z*other.y, z*other.x - x*other.z, x*other.y - y*other.x);
+}
+
 inline Scalar Vertex::innerProduct(const Vertex& other) const
 {
     return x * other.x + y * other.y + z * other.z;
@@ -201,6 +208,12 @@ inline Scalar Vertex::dist(const Vertex& other) const
 {
     return Numerics::Sqrt(dist2(other));
 }
+
+inline Scalar Vertex::length() const
+{
+    return Numerics::Sqrt(innerProduct(*this));
+}
+
 
 
 
