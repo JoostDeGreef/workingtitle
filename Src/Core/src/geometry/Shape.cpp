@@ -48,6 +48,7 @@ void Shape::scale(const double& factor)
     }
     // update affected volatile data if present
     if(bounds) bounds.scale(factor);
+    invalidateSurfaceAreas();
 }
 
 void Shape::optimize()
@@ -91,7 +92,7 @@ Scalar Shape::calculateSurfaceArea() const
 {
     // Make required volatile data available
     requireSurfaceAreas();
-    return std::accumulate(surfaceAreas.begin(), surfaceAreas.end(), 0);
+    return std::accumulate(surfaceAreas.begin(), surfaceAreas.end(), 0.0);
 }
 
 Scalar Shape::calculateVolume() const

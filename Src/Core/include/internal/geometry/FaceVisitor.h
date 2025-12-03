@@ -41,8 +41,8 @@ inline Normal FaceVisitor::calculateNormal() const
     for (Index i=0,j=face.count-1;i<face.count;j=i,++i)
     {
         s0 = s1;
-        s1 = getVertex(j) - getVertex(i);
-        n += s0.crossProduct(s1);
+        s1 = getVertex(i) - getVertex(j);
+        n += s1.crossProduct(s0);
     }
     return n.normalize();
 }
@@ -50,16 +50,17 @@ inline Normal FaceVisitor::calculateNormal() const
 inline Scalar FaceVisitor::calculateSurface() const
 {
     assert(face.count > 2); // degenerative face, no surface area
-    Scalar area = 0;
+    Vertex area(0,0,0);
     Vertex s0;
-    Vertex s1 = getVertex(1) - getVertex(0);
-    Normal n;
+    const Vertex& v0 = getVertex(0);
+    Vertex s1 = getVertex(1) - v0;
     for (Index i = 2; i < face.count; ++i)
     {
         s0 = s1;
-        s1 = getVertex(i) - getVertex(i-1);
-        area += s0.crossProduct(s1).length();
+        s1 = getVertex(i) - v0;
+        area += s0.crossProduct(s1);
     }
-    return area / 2;
+
+    return area.length() / 2;
 }
 

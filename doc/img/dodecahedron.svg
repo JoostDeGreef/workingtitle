@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="500" height="500" viewBox="0 0 240 240">
+    <defs>
+        <marker id="b" markerHeight="6.155" markerWidth="5.324" orient="auto-start-reverse" preserveAspectRatio="xMidYMid" refX="0" refY="0" style="overflow:visible" viewBox="0 0 5.324 6.155">
+            <use xlink:href="#a" style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt" transform="scale(.5)"/>
+        </marker>
+        <marker id="c" markerHeight="6.155" markerWidth="5.324" orient="auto-start-reverse" preserveAspectRatio="xMidYMid" refX="0" refY="0" style="overflow:visible" viewBox="0 0 5.324 6.155">
+            <use xlink:href="#a" style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt" transform="scale(.5)"/>
+        </marker>
+        <marker id="d" markerHeight="6.155" markerWidth="5.324" orient="auto-start-reverse" preserveAspectRatio="xMidYMid" refX="0" refY="0" style="overflow:visible" viewBox="0 0 5.324 6.155">
+            <use xlink:href="#a" style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt" transform="scale(.5)"/>
+        </marker>
+        <path id="a" d="m5.77 0-8.65 5V-5Z"/>
+    </defs>
+    <path d="m27.323 198.832 49.468-26.435m-51.092-76.62 50.23-19.313" style="fill:#fff;fill-opacity:.5;fill-rule:evenodd;stroke:#e46c0a;stroke-width:.944882;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:1.88976,.944882;stroke-dashoffset:0;stroke-opacity:1"/>
+    <path d="m75.93 76.464.86 95.933 89.27 12.704 2.299-99.022z" style="fill:none;fill-opacity:.3;fill-rule:evenodd;stroke:#e46c0a;stroke-width:.944882;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:1.88976,.944882;stroke-dashoffset:0;stroke-opacity:1"/>
+    <path d="m133.816 94.12.108 59.038L166.06 185.1M75.93 76.464l57.886 17.656 34.543-8.04M40.978 125.785l34.951-49.321-7.037-20.338m7.898 116.271-35.812-46.612-32.34 14.2" style="fill:none;fill-opacity:.3;fill-rule:evenodd;stroke:#000;stroke-width:.944882;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"/>
+    <path d="m70.628 217.488 6.163-45.091 57.133-19.24" style="fill:none;fill-opacity:.3;fill-rule:evenodd;stroke:#000;stroke-width:.944882;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"/>
+    <path d="m68.892 56.126 59.187 4.828 40.28 25.125 20.907 57.81-23.206 41.212-38.744 42.26-56.688-9.873-43.305-18.656-18.685-58.847 17.06-44.208Z" style="fill:#fff;fill-opacity:.5;fill-rule:evenodd;stroke:#000;stroke-width:.944882;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"/>
+    <path d="m56.943 129.56 67-22.479 4.136-46.127" style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#000;stroke-width:.944882;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"/>
+    <path d="m25.699 95.777 31.244 33.782.597 66.943-30.217 2.33m30.217-2.33 65.73 17.744 4.046 13.115m-4.046-13.115 40.064-53.983" style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#000;stroke-width:.944882;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"/>
+    <path d="m123.942 107.081 39.392 53.182 25.932-16.374" style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#000;stroke-width:.944882;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"/>
+
+  <!-- orange points at (±1, ±1, ±1) -->
+  
+  <circle cx="76.8" cy="172.4" r="3" style="fill:#e46c0a;fill-opacity:1;fill-rule:evenodd;stroke-width:1.48913;stroke-linecap:round;stroke-linejoin:round"/>
+  <text x="76.8" y="172.4" stroke="black" stroke-width="0.1px">0</text>
+
+  <circle cx="27.3" cy="198.8" r="3" style="fill:#e46c0a;fill-opacity:1;fill-rule:evenodd;stroke-width:1.48913;stroke-linecap:round;stroke-linejoin:round"/>
+  <text x="27.3" y="198.8" stroke="black" stroke-width="0.1px">1</text>
+
+  <circle cx="75.9" cy="76.5" r="3" style="fill:#e46c0a;fill-opacity:1;fill-rule:evenodd;stroke-width:1.48913;stroke-linecap:round;stroke-linejoin:round"/>
+  <text x="75.9" y="76.5" stroke="black" stroke-width="0.1px">2</text>
+
+  <circle cx="25.7" cy="95.8" r="3" style="fill:#e46c0a;fill-opacity:1;fill-rule:evenodd;stroke-width:1.48913;stroke-linecap:round;stroke-linejoin:round"/>
+  <text x="25.7" y="95.8" stroke="black" stroke-width="0.1px">3</text>
+
+  <circle cx="166.1" cy="185.1" r="3" style="fill:#e46c0a;fill-opacity:1;fill-rule:evenodd;stroke-width:1.48913;stroke-linecap:round;stroke-linejoin:round"/>
+  <text x="166.1" y="185.1" stroke="black" stroke-width="0.1px">4</text>
+
+  <circle cx="123.3" cy="214.2" r="3" style="fill:#e46c0a;fill-opacity:1;fill-rule:evenodd;stroke-width:1.48913;stroke-linecap:round;stroke-linejoin:round"/>
+  <text x="123.3" y="214.2" stroke="black" stroke-width="0.1px">5</text>
+
+  <circle cx="168.4" cy="86.1" r="3" style="fill:#e46c0a;fill-opacity:1;fill-rule:evenodd;stroke-width:1.48913;stroke-linecap:round;stroke-linejoin:round"/>
+  <text x="168.4" y="86.1" stroke="black" stroke-width="0.1px">6</text>
+
+  <circle cx="123.9" cy="107.1" r="3" style="fill:#e46c0a;fill-opacity:1;fill-rule:evenodd;stroke-width:1.48913;stroke-linecap:round;stroke-linejoin:round"/>
+  <text x="123.9" y="107.1" stroke="black" stroke-width="0.1px">7</text>
+
+  <!-- green points at (0, ±ϕ, ±⁠1/ϕ⁠) -->
+
+  <circle cx="133.9" cy="153.2" r="3" style="fill:#0f0;fill-opacity:1;fill-rule:evenodd;stroke-width:1.48913;stroke-linecap:round;stroke-linejoin:round"/>
+  <text x="133.9" y="153.2" stroke="black" stroke-width="0.1px">8</text>
+
+  <circle cx="57.5" cy="196.5" r="3" style="fill:#0f0;fill-opacity:1;fill-rule:evenodd;stroke-width:1.48913;stroke-linecap:round;stroke-linejoin:round"/>
+  <text x="57.5" y="196.5" stroke="black" stroke-width="0.1px">9</text>
+
+  <circle cx="133.8" cy="94.1" r="3" style="fill:#0f0;fill-opacity:1;fill-rule:evenodd;stroke-width:1.48913;stroke-linecap:round;stroke-linejoin:round"/>
+  <text x="133.8" y="94.1" stroke="black" stroke-width="0.1px">10</text>
+
+  <circle cx="56.9" cy="129.6" r="3" style="fill:#0f0;fill-opacity:1;fill-rule:evenodd;stroke-width:1.48913;stroke-linecap:round;stroke-linejoin:round"/>
+  <text x="56.9" y="129.6" stroke="black" stroke-width="0.1px">11</text>
+
+  <!-- blue points at (±⁠1/ϕ⁠, 0, ±ϕ⁠) -->
+
+  <circle cx="70.6" cy="217.5" r="3" style="fill:#00f;fill-opacity:1;fill-rule:evenodd;stroke-width:1.48913;stroke-linecap:round;stroke-linejoin:round"/>
+  <text x="70.6" y="217.5" stroke="black" stroke-width="0.1px">12</text>
+
+  <circle cx="127.3" cy="227.4" r="3" style="fill:#00f;fill-opacity:1;fill-rule:evenodd;stroke-width:1.48913;stroke-linecap:round;stroke-linejoin:round"/>
+  <text x="127.3" y="227.4" stroke="black" stroke-width="0.1px">13</text>
+
+  <circle cx="68.9" cy="56.1" r="3" style="fill:#00f;fill-opacity:1;fill-rule:evenodd;stroke-width:1.48913;stroke-linecap:round;stroke-linejoin:round"/>
+  <text x="68.9" y="56.1" stroke="black" stroke-width="0.1px">14</text>
+
+  <circle cx="128.1" cy="61.0" r="3" style="fill:#00f;fill-rule:evenodd;stroke-width:1.48913;stroke-linecap:round;stroke-linejoin:round;fill-opacity:1"/>
+  <text x="128.1" y="61.0" stroke="black" stroke-width="0.1px">15</text>
+
+  <!-- pink points at (±ϕ, ±1/ϕ⁠, 0⁠) -->
+
+  <circle cx="41.0" cy="125.8" r="3" style="fill:#f06;fill-opacity:1;fill-rule:evenodd;stroke-width:1.48913;stroke-linecap:round;stroke-linejoin:round"/>
+  <text x="41.0" y="125.8" stroke="black" stroke-width="0.1px">16</text>
+
+  <circle cx="8.6" cy="140.0" r="3" style="fill:#f06;fill-opacity:1;fill-rule:evenodd;stroke-width:1.48913;stroke-linecap:round;stroke-linejoin:round"/>
+  <text x="8.6" y="140.0" stroke="black" stroke-width="0.1px">17</text>
+  
+  <circle cx="189.3" cy="143.9" r="3" style="fill:#f06;fill-opacity:1;fill-rule:evenodd;stroke-width:1.48913;stroke-linecap:round;stroke-linejoin:round"/>
+  <text x="189.3" y="143.9" stroke="black" stroke-width="0.1px">18</text>
+
+  <circle cx="163.3" cy="160.3" r="3" style="fill:#f06;fill-opacity:1;fill-rule:evenodd;stroke-width:1.48913;stroke-linecap:round;stroke-linejoin:round"/>
+  <text x="163.3" y="160.3" stroke="black" stroke-width="0.1px">19</text>
+
+  <path d="M98.83 153.033V22.064" style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke-width:.94488189;stroke-linecap:round;stroke-linejoin:round;stroke:#6464ff;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#b)"/>
+    <path d="M111.12 136.62 7.475 190.2" style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#6464ff;stroke-width:.944882;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#c)"/>
+    <path d="m89.458 141.934 123.239 15.691" style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#6464ff;stroke-width:.944882;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#d)"/>
+    <path d="m25.699 95.777 98.243 11.304-.672 107.165-95.947-15.414Z" style="fill:none;fill-opacity:.3;fill-rule:evenodd;stroke:#e46c0a;stroke-width:.944882;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:1.88976395,.94488198;stroke-opacity:1;stroke-dashoffset:0"/>
+    <path d="m123.27 214.246 42.79-29.145m-42.118-78.02L168.36 86.08" style="fill:#fff;fill-opacity:.5;fill-rule:evenodd;stroke:#e46c0a;stroke-width:.944882;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:1.88976,.944882;stroke-dashoffset:0;stroke-opacity:1"/>
+    <text xml:space="preserve" x="103.115" y="28.063" style="font-style:italic;font-variant:normal;font-weight:400;font-stretch:normal;font-size:13.3333px;font-family:sans-serif;-inkscape-font-specification:&quot;sans-serif Italic&quot;;fill:#000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:.944882;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:1.88976,.944882;stroke-dashoffset:0;stroke-opacity:1"><tspan x="103.115" y="28.063">z</tspan></text>
+    <text xml:space="preserve" x="190.676" y="96.367" style="font-style:italic;font-variant:normal;font-weight:400;font-stretch:normal;font-size:13.3333px;font-family:sans-serif;-inkscape-font-specification:&quot;sans-serif Italic&quot;;fill:#000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:.944882;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:1.88976,.944882;stroke-dashoffset:0;stroke-opacity:1"><tspan x="7.676" y="182">y</tspan></text>
+    <text xml:space="preserve" x="208.971" y="152.864" style="font-style:italic;font-variant:normal;font-weight:400;font-stretch:normal;font-size:13.3333px;font-family:sans-serif;-inkscape-font-specification:&quot;sans-serif Italic&quot;;fill:#000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:.944882;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:1.88976,.944882;stroke-dashoffset:0;stroke-opacity:1"><tspan x="208.971" y="152.864">x</tspan></text>
+</svg>
