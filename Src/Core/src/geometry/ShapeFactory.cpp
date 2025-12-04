@@ -7,14 +7,14 @@ Shape ShapeFactory::Box(const Vertex& min, const Vertex& max)
 {
     Vertices vertices =
     {
-        {max.x,max.y,max.z},
-        {max.x,max.y,min.z},
-        {min.x,max.y,min.z},
-        {min.x,max.y,max.z},
-        {max.x,min.y,max.z},
-        {min.x,min.y,max.z},
-        {min.x,min.y,min.z},
-        {max.x,min.y,min.z},
+        {max.x,max.y,max.z}, // 1
+        {max.x,max.y,min.z}, // 2
+        {min.x,max.y,min.z}, // 3
+        {min.x,max.y,max.z}, // 4
+        {max.x,min.y,max.z}, // 5
+        {min.x,min.y,max.z}, // 6
+        {min.x,min.y,min.z}, // 7
+        {max.x,min.y,min.z}, // 8
     };
     Faces faces =
     {
@@ -91,12 +91,12 @@ Shape ShapeFactory::Octahedron(const Vertex& center, const Scalar& radius)
 {
     Vertices vertices =
     {
-        { 0,  0, -1},
-        { 0, -1,  0},
-        {-1,  0,  0},
-        { 0,  1,  0},
-        { 1,  0,  0},
-        { 0,  0,  1},
+        { 0,  0, -1}, // 0
+        { 0, -1,  0}, // 1
+        {-1,  0,  0}, // 2
+        { 0,  1,  0}, // 3
+        { 1,  0,  0}, // 4
+        { 0,  0,  1}, // 5
     };
     Faces faces =
     {
@@ -109,5 +109,36 @@ Shape ShapeFactory::Octahedron(const Vertex& center, const Scalar& radius)
         Face({2,3,5}),
         Face({3,4,5})
     };
+    return Shape(vertices, faces);
+}
+
+Shape ShapeFactory::Extrusion(const Contour& contour, const Scalar& height)
+{
+    Vertices vertices;
+    vertices.reserve(contour.size() * 2);
+    for (const auto& p : contour)
+    {
+        vertices.emplace_back(p.x, p.y, 0);
+    }
+    for (const auto& p : contour)
+    {
+        vertices.emplace_back(p.x, p.y, height);
+    }
+    Faces faces;
+    faces.reserve(contour.size() + 2);
+    Index s = (Index)contour.size();
+    std::vector<Index> bottom,top;
+    bottom.reserve(s);
+    top.reserve(s);
+    Index j = s - 1;
+    for (Index i = 0; i < s; ++i)
+    {
+        faces.push_back(Face({ j, i, (Index)(s + i), (Index)(s + j) }));
+        bottom.emplace_back(i);
+        top.emplace_back(2*s-i-1);
+        j = i;
+    }
+    faces.push_back(Face(bottom));
+    faces.push_back(Face(top));
     return Shape(vertices, faces);
 }

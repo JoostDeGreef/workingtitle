@@ -216,19 +216,11 @@ inline void Face::copy(const Face& other)
     if (count <= maxFixPoints)
     {
         std::copy_n(other.fixPoints, count, fixPoints);
-        //for (size_t i = 0; i < count; ++i)
-        //{
-        //    fixPoints[i] = other.fixPoints[i];
-        //}
     }
     else
     {
         varPoints = new Index[count];
         std::copy_n(other.varPoints, count, varPoints);
-        //for (size_t i = 0; i < count; ++i)
-        //{
-        //    varPoints[i] = other.varPoints[i];
-        //}
     }
 }
 

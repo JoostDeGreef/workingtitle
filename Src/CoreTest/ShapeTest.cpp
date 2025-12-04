@@ -55,4 +55,15 @@ TEST_F(ShapeTest, Dodecahedron)
     dodecahedron.optimize();
 }
 
+TEST_F(ShapeTest, Extrusion)
+{
+    Shape extrusion = ShapeFactory::Extrusion();
+    EXPECT_FLOAT_EQ(6, extrusion.calculateSurfaceArea());
+    EXPECT_FLOAT_EQ(1, extrusion.calculateVolume());
+    extrusion.scale(3);
+    EXPECT_FLOAT_EQ(3 * 3 * 3, extrusion.calculateVolume());
+    EXPECT_FLOAT_EQ(3 * 3 * 6, extrusion.calculateSurfaceArea());
+    extrusion.optimize();
+}
+
 

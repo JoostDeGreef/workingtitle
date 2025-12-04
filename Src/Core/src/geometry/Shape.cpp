@@ -1,6 +1,5 @@
 ﻿#include <numeric>
 
-#include "internal/geometry/FaceVisitor.h"
 #include "internal/geometry/Shape.h"
 
 Shape::Shape()
@@ -101,15 +100,18 @@ Scalar Shape::calculateVolume() const
     requireNormals();
     requireSurfaceAreas();
     // iterate over the faces
-    Scalar res = 0;
-    for (Index i=0;i<faces.size();++i)
+    auto faceVolume = [&](const Face& face, const Normal & normal, const Scalar & surface)
     {
-        const auto& normal = normals[i];
-        const auto& face = faces[i];
-        res += (surfaceAreas[i] / 9) * 
-             (vertices[face[0]].innerProduct(normal)
-            + vertices[face[1]].innerProduct(normal)
-            + vertices[face[2]].innerProduct(normal));
+        assert(face.size() > 2); // degenerative face, no surface area
+        return (surface / 9) *
+                 (vertices[face[0]].innerProduct(normal)
+                + vertices[face[1]].innerProduct(normal)
+                + vertices[face[2]].innerProduct(normal));
+    };
+    Scalar res = 0;
+    for (size_t i = 0; i < faces.size(); ++i)
+    {
+        res += faceVolume(faces[i], normals[i], surfaceAreas[i]);
     }
     return res;
 }
@@ -169,24 +171,53 @@ void Shape::requireEdges() const
 
 void Shape::requireNormals() const
 {
+    auto faceNormal = [&](const Face & face)
+    {
+        assert(face.size() > 2); // degenerative face, no normal
+        Vertex s0;
+        Vertex s1 = vertices.at(face[face.size() - 2]) - vertices.at(face[face.size() - 1]);
+        Normal n;
+        for (Index i = 0, j = face.size() - 1; i < face.size(); j = i, ++i)
+        {
+            s0 = s1;
+            s1 = vertices.at(face[i]) - vertices.at(face[j]);
+            n += s1.crossProduct(s0);
+        }
+        return n.normalize();
+    };
     if (normals.empty())
     {
         normals.reserve(faces.size());
         for (const auto& face : faces)
         {
-            normals.emplace_back(FaceVisitor(face,vertices).calculateNormal());
+            normals.emplace_back(faceNormal(face));
         }
     }
 }
 
 void Shape::requireSurfaceAreas() const
 {
+    auto faceSurfaceArea = [&](const Face& face)
+    {
+        assert(face.size() > 2); // degenerative face, no surface area
+        Vertex area(0, 0, 0);
+        Vertex s0;
+        const Vertex& v0 = vertices.at(face[0]);
+        Vertex s1 = vertices.at(face[1]) - v0;
+        for (Index i = 2; i < face.size(); ++i)
+        {
+            s0 = s1;
+            s1 = vertices.at(face[i]) - v0;
+            area += s0.crossProduct(s1);
+        }
+        return area.length() / 2;
+    };
     if (surfaceAreas.empty())
     {
         surfaceAreas.reserve(faces.size());
         for (const auto& face : faces)
         {
-            surfaceAreas.emplace_back(FaceVisitor(face, vertices).calculateSurface());
+            surfaceAreas.emplace_back(faceSurfaceArea(face));
         }
     }
 }

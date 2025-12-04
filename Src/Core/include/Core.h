@@ -19,6 +19,7 @@
 #include "internal/generic/Scalar.h"
 
 #include "internal/geometry/BoundingObject.h"
+#include "internal/geometry/Contour.h"
 #include "internal/geometry/Edge.h"
 #include "internal/geometry/Edges.h"
 #include "internal/geometry/Face.h"
