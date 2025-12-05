@@ -52,6 +52,11 @@ public:
             ++index;
             return *this;
         }
+        iterator& operator--()
+        {
+            --index;
+            return *this;
+        }
         Index & operator*() const
         {
             return points[index];
@@ -116,6 +121,11 @@ public:
         const_iterator& operator++()
         {
             ++index;
+            return *this;
+        }
+        const_iterator& operator--() 
+        {
+            --index;
             return *this;
         }
         const Index& operator*() const

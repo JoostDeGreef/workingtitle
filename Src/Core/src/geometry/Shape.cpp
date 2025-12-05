@@ -1,4 +1,6 @@
-﻿#include <numeric>
+﻿#include <map>
+#include <numeric>
+#include <tuple>
 
 #include "internal/geometry/Shape.h"
 
@@ -168,7 +170,32 @@ void Shape::requireEdges() const
 {
     if (edges.empty())
     {
-        // TODO
+        // [start point, end point] => [face,pre start point,after end point,edgeIdx]
+        std::map<std::tuple<Index, Index>, std::tuple<Index,Index,Index,Index>> edgesMap;
+        for (Index faceIdx = 0; faceIdx < faces.size(); ++faceIdx)
+        {
+            const auto& face = faces[faceIdx];
+            Index prev = face[face.size() - 2];
+            Index start = face[face.size() - 1];
+            for (Index end = 0; end < face.size(); ++end)
+            {
+                Index next = (end + 1) % face.size();
+                edgesMap[std::make_tuple(start,end)] = std::make_tuple(faceIdx,prev,next,(Index)edgesMap.size());
+                prev = start;
+                start = end;
+            }
+        }
+        edges.resize(edgesMap.size());
+        for (auto& edgeData : edgesMap)
+        {
+            auto& edge = edges[std::get<3>(edgeData.second)];
+            edge.startVertex = std::get<0>(edgeData.first);
+            edge.endVertex = std::get<1>(edgeData.first);
+            edge.face = std::get<0>(edgeData.second);
+            edge.mirrorEdge = std::get<3>(edgesMap[std::make_tuple(edge.endVertex, edge.startVertex)]);
+            edge.prevEdge = std::get<3>(edgesMap[std::make_tuple(std::get<1>(edgeData.second), edge.startVertex)]);
+            edge.nextEdge = std::get<3>(edgesMap[std::make_tuple(edge.endVertex, std::get<2>(edgeData.second))]);
+        }
     }
 }
 
