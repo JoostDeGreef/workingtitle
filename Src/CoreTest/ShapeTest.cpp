@@ -66,4 +66,16 @@ TEST_F(ShapeTest, Extrusion)
     extrusion.optimize();
 }
 
+TEST_F(ShapeTest, ExtrusionCylinder)
+{
+    Shape extrusion = ShapeFactory::Extrusion(Contour::Circle({0,0},1,6));
+    Scalar A = 6 * (sqrt(0.75) + 1);
+    Scalar V = 6 * 0.5 * sqrt(0.75);
+    EXPECT_FLOAT_EQ(A, extrusion.calculateSurfaceArea());
+    EXPECT_FLOAT_EQ(V, extrusion.calculateVolume());
+    extrusion.scale(3);
+    EXPECT_FLOAT_EQ(V * 3 * 3 * 3, extrusion.calculateVolume());
+    EXPECT_FLOAT_EQ(A * 3 * 3, extrusion.calculateSurfaceArea());
+    extrusion.optimize();
+}
 

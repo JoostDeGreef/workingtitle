@@ -22,6 +22,11 @@ public:
             , y(y)
         {}
 
+        Point operator + (const Point & other) const 
+        {
+            return Point(x + other.x, y + other.y);
+        }
+
         Scalar x;
         Scalar y;
     };
@@ -33,7 +38,7 @@ public:
     Contour(const Contour & other)
         : points(other.points)
     {}
-    Contour(Contour&& other)
+    Contour(Contour&& other) noexcept
         : points(std::move(other.points))
     {}
     Contour(const Points& points)
@@ -51,12 +56,15 @@ public:
         return *this;
     }
 
+    const Point& operator [](const size_t index) const { return points[index]; }
+
     auto size() const { return points.size(); }
     auto begin() const { return points.begin(); }
     auto end() const { return points.end(); }
 
     // predefined contours
     static Contour Square(const Point& min = Point(0, 0), const Point& max = Point(1, 1));
+    static Contour Circle(const Point& center = Point(0, 0), const Scalar& radius = 1, const size_t & pieces = 10);
 
 private:
     Points points;

@@ -114,26 +114,21 @@ Shape ShapeFactory::Octahedron(const Vertex& center, const Scalar& radius)
 
 Shape ShapeFactory::Extrusion(const Contour& contour, const Scalar& height)
 {
-    Vertices vertices;
-    vertices.reserve(contour.size() * 2);
-    for (const auto& p : contour)
-    {
-        vertices.emplace_back(p.x, p.y, 0);
-    }
-    for (const auto& p : contour)
-    {
-        vertices.emplace_back(p.x, p.y, height);
-    }
-    Faces faces;
-    faces.reserve(contour.size() + 2);
     Index s = (Index)contour.size();
+    Vertices vertices;
+    vertices.resize(s * 2);
+    Faces faces;
+    faces.reserve(s + 2);
     std::vector<Index> bottom,top;
     bottom.reserve(s);
     top.reserve(s);
     Index j = s - 1;
     for (Index i = 0; i < s; ++i)
     {
-        faces.push_back(Face({ j, i, (Index)(s + i), (Index)(s + j) }));
+        const auto& p = contour[i];
+        vertices[i] = Vertex(p.x, p.y, 0);
+        vertices[s+i] = Vertex(p.x, p.y, height);
+        faces.push_back(Face({ i, j, (Index)(s + j), (Index)(s + i) }));
         bottom.emplace_back(i);
         top.emplace_back(2*s-i-1);
         j = i;

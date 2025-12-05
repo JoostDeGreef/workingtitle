@@ -103,15 +103,18 @@ Scalar Shape::calculateVolume() const
     auto faceVolume = [&](const Face& face, const Normal & normal, const Scalar & surface)
     {
         assert(face.size() > 2); // degenerative face, no surface area
-        return (surface / 9) *
-                 (vertices[face[0]].innerProduct(normal)
-                + vertices[face[1]].innerProduct(normal)
-                + vertices[face[2]].innerProduct(normal));
+        Scalar volume = 0;
+        // is it really neccesairy to do this for all vertices?
+        for (const auto i : face)
+        {
+            volume += surface * vertices[i].innerProduct(normal);
+        }
+        return volume / (3 * face.size());
     };
     Scalar res = 0;
     for (size_t i = 0; i < faces.size(); ++i)
     {
-        res += faceVolume(faces[i], normals[i], surfaceAreas[i]);
+        res += faceVolume(faces[i],normals[i],surfaceAreas[i]);
     }
     return res;
 }
@@ -125,12 +128,12 @@ bool Shape::detectCollision(const Shape& other) const
     {
         return false;
     }
-    else
-    {
-        // TODO: do expensive check
+    // Make required volatile data available
+    requireEdges();
+    other.requireEdges();
+    // TODO: do expensive check
 
-        return true;
-    }    
+    return true;
 }
 
 void Shape::invalidateBounds() const
