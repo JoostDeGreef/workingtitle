@@ -7,6 +7,7 @@
 Shape::Shape()
     : vertices()
     , faces()
+    , transformation()
     , normals()
     , edges()
     , surfaceAreas()
@@ -16,16 +17,19 @@ Shape::Shape()
 Shape::Shape(const Vertices & vertices, const Faces & faces)
     : vertices(vertices)
     , faces(faces)
+    , transformation()
     , normals()
     , edges()
     , surfaceAreas()
     , bounds()
 {
+    optimize();
 }
 
 Shape::Shape(const Shape& other)
     : vertices(other.vertices)
     , faces(other.faces)
+    , transformation(other.transformation)
     , normals(other.normals)
     , edges(other.edges)
     , surfaceAreas(other.surfaceAreas)
@@ -35,6 +39,7 @@ Shape::Shape(const Shape& other)
 Shape::Shape(Shape&& other) noexcept
     : vertices(std::move(other.vertices))
     , faces(std::move(other.faces))
+    , transformation(std::move(other.transformation))
     , normals(std::move(other.normals))
     , edges(std::move(other.edges))
     , surfaceAreas(std::move(other.surfaceAreas))
@@ -49,6 +54,13 @@ void Shape::scale(const double& factor)
     }
     // update affected volatile data if present
     if(bounds) bounds.scale(factor);
+    if (!transformedVertices.empty())
+    {
+        for (auto& vertex : transformedVertices)
+        {
+            vertex *= factor;
+        }
+    }
     invalidateSurfaceAreas();
 }
 
@@ -85,8 +97,24 @@ void Shape::optimize()
         }
         // update affected volatile data
         invalidateBounds();
-        invalidateSurfaceAreas();
+        invalidateTransformedVertices();
     }
+}
+
+void Shape::translate(const Vertex& translation)
+{
+    transformation *= Transformation(translation);
+    invalidateBounds();
+    invalidateTransformedNormals();
+    invalidateTransformedVertices();
+}
+
+void Shape::rotate(const Normal& axis, const Scalar& angle)
+{
+    transformation *= Transformation(axis, angle);
+    invalidateBounds();
+    invalidateTransformedNormals();
+    invalidateTransformedVertices();
 }
 
 Scalar Shape::calculateSurfaceArea() const
@@ -131,9 +159,34 @@ bool Shape::detectCollision(const Shape& other) const
         return false;
     }
     // Make required volatile data available
-    requireEdges();
-    other.requireEdges();
-    // TODO: do expensive check
+//    requireEdges();
+//    other.requireEdges();
+    requireTransformedVertices();
+    other.requireTransformedVertices();
+    // check faces using eventline
+    struct Event
+    {
+        Event(const Shape& shape, const Face& face)
+            : shape(shape)
+            , face(face)
+        {}
+        const Shape & shape;
+        const Face & face;
+        Vertex max;
+        Vertex min;
+    };
+    std::vector<Event> events;
+    events.reserve(faces.size() + other.faces.size());
+    for (const auto& face : faces)
+    {
+        events.emplace_back(*this, face);
+    }
+    for (const auto& face : other.faces)
+    {
+        events.emplace_back(other, face);
+    }
+
+    // TODO
 
     return true;
 }
@@ -153,16 +206,27 @@ void Shape::invalidateNormals() const
     normals.clear();
 }
 
+void Shape::invalidateTransformedNormals() const
+{
+    transformedNormals.clear();
+}
+
 void Shape::invalidateSurfaceAreas() const
 {
     surfaceAreas.clear();
 }
 
+void Shape::invalidateTransformedVertices() const
+{
+    transformedVertices.clear();
+}
+
 void Shape::requireBounds() const
 {
+    requireTransformedVertices();
     if (!bounds)
     {
-        bounds.create(vertices);
+        bounds.create(transformedVertices);
     }
 }
 
@@ -199,28 +263,43 @@ void Shape::requireEdges() const
     }
 }
 
+// Helper for requireNoemal and requireTransformedNormal
+Normal faceNormal(const Face& face, const Vertices & vertices)
+{
+    assert(face.size() > 2); // degenerative face, no normal
+    Vertex s0;
+    Vertex s1 = vertices.at(face[face.size() - 2]) - vertices.at(face[face.size() - 1]);
+    Normal n;
+    for (Index i = 0, j = face.size() - 1; i < face.size(); j = i, ++i)
+    {
+        s0 = s1;
+        s1 = vertices.at(face[i]) - vertices.at(face[j]);
+        n += s1.crossProduct(s0);
+    }
+    return n.normalize();
+};
+
 void Shape::requireNormals() const
 {
-    auto faceNormal = [&](const Face & face)
-    {
-        assert(face.size() > 2); // degenerative face, no normal
-        Vertex s0;
-        Vertex s1 = vertices.at(face[face.size() - 2]) - vertices.at(face[face.size() - 1]);
-        Normal n;
-        for (Index i = 0, j = face.size() - 1; i < face.size(); j = i, ++i)
-        {
-            s0 = s1;
-            s1 = vertices.at(face[i]) - vertices.at(face[j]);
-            n += s1.crossProduct(s0);
-        }
-        return n.normalize();
-    };
     if (normals.empty())
     {
         normals.reserve(faces.size());
         for (const auto& face : faces)
         {
-            normals.emplace_back(faceNormal(face));
+            normals.emplace_back(faceNormal(face, vertices));
+        }
+    }
+}
+
+void Shape::requireTransformedNormals() const
+{
+    if (transformedNormals.empty())
+    {
+        requireTransformedVertices();
+        transformedNormals.reserve(faces.size());
+        for (const auto& face : faces)
+        {
+            transformedNormals.emplace_back(faceNormal(face, transformedVertices));
         }
     }
 }
@@ -249,5 +328,13 @@ void Shape::requireSurfaceAreas() const
         {
             surfaceAreas.emplace_back(faceSurfaceArea(face));
         }
+    }
+}
+
+void Shape::requireTransformedVertices() const
+{
+    if (transformedVertices.empty())
+    {
+        transformedVertices = transformation * vertices;
     }
 }

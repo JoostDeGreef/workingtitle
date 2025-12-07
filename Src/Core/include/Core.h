@@ -28,5 +28,6 @@
 #include "internal/geometry/Normals.h"
 #include "internal/geometry/Shape.h"
 #include "internal/geometry/ShapeFactory.h"
+#include "internal/geometry/Transformation.h"
 #include "internal/geometry/Vertex.h"
 #include "internal/geometry/Vertices.h"
