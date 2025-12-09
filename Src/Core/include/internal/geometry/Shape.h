@@ -22,9 +22,6 @@ public:
     // Scale (multiply) all vertices with this factor
     void scale(const double& factor);
 
-    // Remove unused vertices
-    void optimize();
-
     // Translate the shape
     void translate(const Vertex & translation);
 
@@ -68,6 +65,9 @@ private:
 
     // Any class inheriting from IBoundingBox (volatile data)  
     mutable BoundingObject bounds;
+
+    // Remove unused vertices
+    void optimize();
 
     // Invalidate volatile data
     void invalidateBounds() const;

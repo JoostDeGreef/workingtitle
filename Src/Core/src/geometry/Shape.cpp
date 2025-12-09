@@ -164,16 +164,36 @@ bool Shape::detectCollision(const Shape& other) const
     requireTransformedVertices();
     other.requireTransformedVertices();
     // check faces using eventline
+    struct MaxVertex
+    {
+        bool operator()(const Vertex & a, const Vertex & b) const 
+        { 
+            return (a.z > b.z) || (a.z == b.z && a.x > b.x) || (a.z == b.z && a.x == b.x && a.y > b.y);
+        }
+    };
     struct Event
     {
         Event(const Shape& shape, const Face& face)
-            : shape(shape)
-            , face(face)
-        {}
-        const Shape & shape;
-        const Face & face;
+        {
+            Vertices vertices;
+            vertices.reserve(face.size());
+            for (const auto& i : face)
+            {
+                vertices.emplace_back(shape.vertices[i]);
+            }
+            std::sort(vertices.begin(), vertices.end(), MaxVertex());
+            max = vertices.front();
+            min = vertices.back();
+        }
         Vertex max;
         Vertex min;
+    };
+    struct MaxEvent
+    {
+        bool operator()(const Event& a, const Event& b) const
+        {
+            return MaxVertex()(a.max, b.max);
+        }
     };
     std::vector<Event> events;
     events.reserve(faces.size() + other.faces.size());
@@ -185,7 +205,7 @@ bool Shape::detectCollision(const Shape& other) const
     {
         events.emplace_back(other, face);
     }
-
+    std::sort(events.begin(), events.end(), MaxEvent());
     // TODO
 
     return true;
@@ -274,7 +294,7 @@ Normal faceNormal(const Face& face, const Vertices & vertices)
     {
         s0 = s1;
         s1 = vertices.at(face[i]) - vertices.at(face[j]);
-        n += s1.crossProduct(s0);
+        n += s0.crossProduct(s1);
     }
     return n.normalize();
 };

@@ -18,12 +18,12 @@ Shape ShapeFactory::Box(const Vertex& min, const Vertex& max)
     };
     Faces faces =
     {
-        Face({0,3,2,1}),
-        Face({0,1,7,4}),
-        Face({0,4,5,3}),
-        Face({1,2,6,7}),
-        Face({2,3,5,6}),
-        Face({4,7,6,5})
+        Face({0,1,2,3}),
+        Face({0,4,7,1}),
+        Face({0,3,5,4}),
+        Face({1,7,6,2}),
+        Face({2,6,5,3}),
+        Face({4,5,6,7})
     };
     return Shape(vertices, faces);
 }
@@ -100,14 +100,14 @@ Shape ShapeFactory::Octahedron(const Vertex& center, const Scalar& radius)
     };
     Faces faces =
     {
-        Face({0,1,4}),
-        Face({0,2,1}),
-        Face({0,3,2}),
-        Face({0,4,3}),
-        Face({1,5,4}),
-        Face({1,2,5}),
-        Face({2,3,5}),
-        Face({3,4,5})
+        Face({0,4,1}),
+        Face({0,1,2}),
+        Face({0,2,3}),
+        Face({0,3,4}),
+        Face({1,4,5}),
+        Face({1,5,2}),
+        Face({2,5,3}),
+        Face({3,5,4})
     };
     return Shape(vertices, faces);
 }

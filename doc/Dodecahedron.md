@@ -1,7 +1,7 @@
 ﻿
 From https://en.wikipedia.org/wiki/Regular_dodecahedron
 
-![dodecahedron](./img/dodecahedron.svg)
+![dodecahedron](./img/Dodecahedron.svg)
 
 Cartesian coordinates of a regular dodecahedron in the following:
  * the orange vertices lie at (±1, ±1, ±1).

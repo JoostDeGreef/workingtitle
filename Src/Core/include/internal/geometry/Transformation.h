@@ -17,7 +17,6 @@ public:
     Transformation(const Vertex & translation);
     Transformation(const Normal& axis, const Scalar& angle);
 
-
     Vertex operator * (const Vertex& v) const;
     Vertices operator * (const Vertices& v) const;
 
