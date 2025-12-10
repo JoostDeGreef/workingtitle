@@ -8,7 +8,7 @@ add_library (${PROJECT_NAME}
              "src/Core.cpp" 
              "src/geometry/Shape.cpp"
              "src/geometry/ShapeFactory.cpp"
-             "src/geometry/Contour.cpp" "include/internal/geometry/Transformation.h" "src/geometry/Transformation.cpp")
+             "src/geometry/Contour.cpp" "include/internal/geometry/Transformation.h" "src/geometry/Transformation.cpp" "include/internal/geometry/Contour3D.h" "include/internal/geometry/FaceVisitor.h")
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
 

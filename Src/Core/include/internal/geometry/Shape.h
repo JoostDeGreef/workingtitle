@@ -3,6 +3,7 @@
 #include "internal/geometry/BoundingObject.h"
 #include "internal/geometry/Edges.h"
 #include "internal/geometry/Faces.h"
+#include "internal/geometry/FaceVisitor.h"
 #include "internal/geometry/Normals.h"
 #include "internal/geometry/Transformation.h"
 #include "internal/geometry/Vertices.h"
@@ -36,6 +37,20 @@ public:
 
     // Determine if shapes overlap
     bool detectCollision(const Shape& other) const;
+
+    // Get vertices
+    const Vertices& getVertices() const;
+    const Vertices& getTransformedVertices() const;
+
+    // Get normals
+    const Normals& getNormals() const;
+    const Normals& getTransformedNormals() const;
+
+    // Get faces
+    const Faces& getFaces() const;
+    const Face& getIndexFace(const size_t& index) const;
+    FaceVisitor getFace(const size_t& index) const;
+    FaceVisitor getTransformedFace(const size_t& index) const;
 private:
     // The transformation (rotation + translation only) to apply on the vertices
     Transformation transformation;

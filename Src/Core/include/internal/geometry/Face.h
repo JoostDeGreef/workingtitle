@@ -6,13 +6,9 @@
 
 #include "internal/generic/Index.h"
 
-class FaceVisitor;
-
 class Face
 {
 public:
-    friend class FaceVisitor;
-        
     static constexpr size_t maxFixPoints = sizeof(Index*) / sizeof(Index);
 
     class iterator 

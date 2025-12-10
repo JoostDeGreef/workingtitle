@@ -6,9 +6,9 @@
 #include "internal/generic/Scalar.h"
 
 //
-// Contours are defined counterclockwise in the xy plane.
+// 2D Contours are defined counterclockwise in the xy plane.
 //
-class Contour
+class Contour2D
 {
 public:
     struct Point
@@ -32,25 +32,25 @@ public:
     };
     typedef std::vector<Point> Points;
 
-    Contour() 
+    Contour2D() 
         : points()
     {}
-    Contour(const Contour & other)
+    Contour2D(const Contour2D & other)
         : points(other.points)
     {}
-    Contour(Contour&& other) noexcept
+    Contour2D(Contour2D&& other) noexcept
         : points(std::move(other.points))
     {}
-    Contour(const Points& points)
+    Contour2D(const Points& points)
         : points(points)
     {}
 
-    Contour& add(const Scalar& x, const Scalar& y)
+    Contour2D& add(const Scalar& x, const Scalar& y)
     {
         points.emplace_back(x, y);
         return *this;
     }
-    Contour& add(const Point& p)
+    Contour2D& add(const Point& p)
     {
         points.emplace_back(p);
         return *this;
@@ -63,8 +63,8 @@ public:
     auto end() const { return points.end(); }
 
     // predefined contours
-    static Contour Square(const Point& min = Point(0, 0), const Point& max = Point(1, 1));
-    static Contour Circle(const Point& center = Point(0, 0), const Scalar& radius = 1, const size_t & pieces = 10);
+    static Contour2D Square(const Point& min = Point(0, 0), const Point& max = Point(1, 1));
+    static Contour2D Circle(const Point& center = Point(0, 0), const Scalar& radius = 1, const size_t & pieces = 10);
 
 private:
     Points points;

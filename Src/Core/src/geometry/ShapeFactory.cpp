@@ -64,18 +64,18 @@ Shape ShapeFactory::Dodecahedron(const Vertex& center, const Scalar& radius)
     };
     Faces faces =
     {
-        Face({0,  8,  4, 13, 12}), // 0
-        Face({0, 12,  1, 17, 16}), // 1
-        Face({0, 16,  2, 10,  8}), // 2
-        Face({1,  9, 11,  3, 17}), // 3
-        Face({1, 12, 13,  5,  9}), // 4
-        Face({2, 14, 15,  6, 10}), // 5
-        Face({2, 16, 17,  3, 14}), // 6
-        Face({3, 11,  7, 15, 14}), // 7
-        Face({4,  8, 10,  6, 18}), // 8
-        Face({4, 18, 19,  5, 13}), // 9
-        Face({5, 19,  7, 11,  9}), // 10
-        Face({6, 15,  7, 19, 18}), // 11
+        Face({0, 12, 13,  4,  8}), // 0
+        Face({0, 16, 17,  1, 12}), // 1
+        Face({0,  8, 10,  2, 16}), // 2
+        Face({1, 17,  3, 11,  9}), // 3
+        Face({1,  9,  5, 13, 12}), // 4
+        Face({2, 10,  6, 15, 14}), // 5
+        Face({2, 14,  3, 17, 16}), // 6
+        Face({3, 14, 15,  7, 11}), // 7
+        Face({4, 18,  6, 10,  8}), // 8
+        Face({4, 13,  5, 19, 18}), // 9
+        Face({5,  9, 11,  7, 19}), // 10
+        Face({6, 18, 19,  7, 15}), // 11
     };
 
     for (auto & v : vertices)
@@ -112,7 +112,7 @@ Shape ShapeFactory::Octahedron(const Vertex& center, const Scalar& radius)
     return Shape(vertices, faces);
 }
 
-Shape ShapeFactory::Extrusion(const Contour& contour, const Scalar& height)
+Shape ShapeFactory::Extrusion(const Contour2D& contour, const Scalar& height)
 {
     Index s = (Index)contour.size();
     Vertices vertices;
@@ -128,9 +128,9 @@ Shape ShapeFactory::Extrusion(const Contour& contour, const Scalar& height)
         const auto& p = contour[i];
         vertices[i] = Vertex(p.x, p.y, 0);
         vertices[s+i] = Vertex(p.x, p.y, height);
-        faces.push_back(Face({ i, j, (Index)(s + j), (Index)(s + i) }));
-        bottom.emplace_back(i);
-        top.emplace_back(2*s-i-1);
+        faces.push_back(Face({ j, i, (Index)(s + i), (Index)(s + j) }));
+        bottom.emplace_back(s-i-1);
+        top.emplace_back(s+i);
         j = i;
     }
     faces.push_back(Face(bottom));

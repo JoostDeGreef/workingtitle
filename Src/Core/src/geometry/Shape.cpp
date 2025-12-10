@@ -211,6 +211,52 @@ bool Shape::detectCollision(const Shape& other) const
     return true;
 }
 
+const Vertices& Shape::getVertices() const
+{
+    return vertices;
+}
+
+const Vertices& Shape::getTransformedVertices() const
+{
+    requireTransformedVertices();
+    return transformedVertices;
+}
+
+const Normals& Shape::getNormals() const
+{
+    requireNormals();
+    return normals;
+}
+
+const Normals& Shape::getTransformedNormals() const
+{
+    requireTransformedNormals();
+    return transformedNormals;
+}
+
+const Faces& Shape::getFaces() const
+{
+    return faces;
+}
+
+FaceVisitor Shape::getFace(const size_t& index) const
+{
+    requireNormals();
+    return FaceVisitor(faces.at(index), vertices, normals.at(index));
+}
+
+const Face& Shape::getIndexFace(const size_t& index) const
+{
+    return faces.at(index);
+}
+
+FaceVisitor Shape::getTransformedFace(const size_t& index) const
+{
+    requireTransformedVertices();
+    requireTransformedNormals();
+    return FaceVisitor(faces.at(index), transformedVertices, transformedNormals.at(index));
+}
+
 void Shape::invalidateBounds() const
 {
     bounds.invalidate();
