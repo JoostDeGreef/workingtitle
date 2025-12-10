@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "internal/generic/Numerics.h"
+#include "internal/geometry/Points.h"
 #include "internal/generic/Scalar.h"
 
 //
@@ -11,27 +11,6 @@
 class Contour2D
 {
 public:
-    struct Point
-    {
-        Point()
-            : x(0)
-            , y(0)
-        {}
-        Point(const Scalar &x, const Scalar &y)
-            : x(x)
-            , y(y)
-        {}
-
-        Point operator + (const Point & other) const 
-        {
-            return Point(x + other.x, y + other.y);
-        }
-
-        Scalar x;
-        Scalar y;
-    };
-    typedef std::vector<Point> Points;
-
     Contour2D() 
         : points()
     {}

@@ -28,8 +28,12 @@
 #include "internal/geometry/FaceVisitor.h"
 #include "internal/geometry/Normal.h"
 #include "internal/geometry/Normals.h"
+#include "internal/geometry/Point.h"
+#include "internal/geometry/Points.h"
 #include "internal/geometry/Shape.h"
 #include "internal/geometry/ShapeFactory.h"
 #include "internal/geometry/Transformation.h"
 #include "internal/geometry/Vertex.h"
 #include "internal/geometry/Vertices.h"
+
+#include "internal/utilities/svg.h"

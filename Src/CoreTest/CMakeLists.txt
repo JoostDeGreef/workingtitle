@@ -12,5 +12,5 @@ add_executable (${PROJECT_NAME}
                 "VertexTest.cpp"
                 "FaceTest.cpp"
                 "ShapeTest.cpp" 
-                "BoundingObjectTest.cpp")
+                "BoundingObjectTest.cpp" "SVGTest.cpp")
 
