@@ -234,20 +234,20 @@ const Normals& Shape::getTransformedNormals() const
     return transformedNormals;
 }
 
-const Faces& Shape::getFaces() const
+const Faces& Shape::getRawFaces() const
 {
     return faces;
+}
+
+const Face& Shape::getRawFace(const size_t& index) const
+{
+    return faces.at(index);
 }
 
 FaceVisitor Shape::getFace(const size_t& index) const
 {
     requireNormals();
     return FaceVisitor(faces.at(index), vertices, normals.at(index));
-}
-
-const Face& Shape::getIndexFace(const size_t& index) const
-{
-    return faces.at(index);
 }
 
 FaceVisitor Shape::getTransformedFace(const size_t& index) const

@@ -26,6 +26,7 @@
 #include "internal/geometry/Face.h"
 #include "internal/geometry/Faces.h"
 #include "internal/geometry/FaceVisitor.h"
+#include "internal/geometry/FacesVisitor.h"
 #include "internal/geometry/Normal.h"
 #include "internal/geometry/Normals.h"
 #include "internal/geometry/Point.h"

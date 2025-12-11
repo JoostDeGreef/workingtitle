@@ -3,8 +3,11 @@
 #include <memory>
 #include <ostream>
 #include <string>
+#include <variant>
 
 #include "internal/geometry/Point.h"
+#include "internal/geometry/Points.h"
+
 #include "internal/geometry/Shape.h"
 
 class SVG
@@ -23,6 +26,14 @@ public:
         friend std::ostream& operator <<(std::ostream& os, const ViewBox& viewBox);
     };
 
+    enum class View
+    {
+        XY,
+        XZ,
+        YZ,
+        Ortho
+    };
+
     struct RenderFormat
     {
         std::string fillColor;
@@ -31,7 +42,27 @@ public:
 
     struct RenderObject
     {
+        struct Path
+        {
+            Path(const Points& points)
+                : points(points)
+            {}
+
+            const Points& points;
+
+            friend std::ostream& operator <<(std::ostream& os, const RenderObject::Path& path);
+        };
+
+        RenderObject(std::shared_ptr<RenderFormat> & renderFormat, const Points & points)
+            : renderFormat(renderFormat)
+            , data(points)
+        {}
+
         std::shared_ptr<RenderFormat> renderFormat;
+
+        friend std::ostream& operator <<(std::ostream& os, const RenderObject& object);
+    private:
+        std::variant<Path> data;
     };
 
     SVG(const int width, const int height, const ViewBox& viewBox)
@@ -55,7 +86,9 @@ public:
         getUniqueRenderFormat().lineColor = color;
     }
 
-    void addShape(const Shape& shape);
+    void addShape(const Shape& shape, const Point & center, const View view);
+
+    friend std::ostream& operator << (std::ostream& os, const SVG& svg);
 private:
     const int width;
     const int height;
@@ -74,7 +107,6 @@ private:
     std::vector<RenderObject> renderObjects;
 };
 
-inline std::ostream& operator << (std::ostream& os, const SVG::ViewBox& viewBox)
-{
-    return os << viewBox.min.x << " " << viewBox.min.y << " " << viewBox.max.x << " " << viewBox.max.y;
-}
+std::ostream& operator << (std::ostream& os, const SVG& svg);
+std::ostream& operator << (std::ostream& os, const SVG::ViewBox& viewBox);
+std::ostream& operator<<(std::ostream& os, const SVG::RenderObject& object);

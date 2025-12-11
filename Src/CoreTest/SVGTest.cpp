@@ -18,7 +18,12 @@ protected:
 
 TEST_F(SVGTest, Box)
 {
-    Shape box = ShapeFactory::Box();
-    SVG svg(640, 480, {0,0,320,240});
+    SVG svg(500, 500, { 0,0,200,200 });
+    Shape box = ShapeFactory::Box({-1,-1,-1},{1,1,1});
+    box.scale(20);
+    svg.addShape(box, {  50, 50 }, SVG::View::XY);
+    svg.addShape(box, { 150, 50 }, SVG::View::Ortho);
+    svg.addShape(box, {  50,150 }, SVG::View::YZ);
+    svg.addShape(box, { 150,150 }, SVG::View::XZ);
     svg.writeToFile("Box.svg");
 }

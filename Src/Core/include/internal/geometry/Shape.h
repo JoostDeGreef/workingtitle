@@ -4,6 +4,7 @@
 #include "internal/geometry/Edges.h"
 #include "internal/geometry/Faces.h"
 #include "internal/geometry/FaceVisitor.h"
+#include "internal/geometry/FacesVisitor.h"
 #include "internal/geometry/Normals.h"
 #include "internal/geometry/Transformation.h"
 #include "internal/geometry/Vertices.h"
@@ -47,8 +48,10 @@ public:
     const Normals& getTransformedNormals() const;
 
     // Get faces
-    const Faces& getFaces() const;
-    const Face& getIndexFace(const size_t& index) const;
+    const Faces& getRawFaces() const;
+    const Face& getRawFace(const size_t& index) const;
+    FacesVisitor getFaces() const;
+    FacesVisitor getTransformedFaces() const;
     FaceVisitor getFace(const size_t& index) const;
     FaceVisitor getTransformedFace(const size_t& index) const;
 private:
@@ -100,4 +103,18 @@ private:
     void requireSurfaceAreas() const;
     void requireTransformedVertices() const;
 };
+
+inline FacesVisitor Shape::getFaces() const
+{
+    requireNormals();
+    return FacesVisitor(faces,vertices,normals);
+}
+
+inline FacesVisitor Shape::getTransformedFaces() const
+{
+    requireTransformedNormals();
+    requireTransformedVertices();
+    return FacesVisitor(faces, transformedVertices, transformedNormals);
+}
+
 
