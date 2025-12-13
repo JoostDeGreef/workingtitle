@@ -1,10 +1,19 @@
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <variant>
 
 #include "internal/geometry/Points.h"
 
 #include "internal/utilities/svg.h"
+
+std::map<SVG::Color::Predefined, std::string> SVG::Color::predefinedColors =
+{
+    {SVG::Color::Predefined::None, "none"},
+    {SVG::Color::Predefined::Black, "black"},
+    {SVG::Color::Predefined::Red, "red"},
+};
 
 void SVG::writeToStream(std::ostream& os) const
 {
@@ -51,17 +60,25 @@ void SVG::addShape(const Shape& shape, const Point& center, const View view)
                 {
                     // decide to cull based on face.getNormal()
                     // add something like a z-index?
-                    points.emplace_back(vertex.x, vertex.y);
+                    points.emplace_back(center.x + vertex.x, center.y + vertex.y);
                 }
                 break;
             case View::XZ:
+                for (const auto& vertex : face)
+                {
+                    points.emplace_back(center.x + vertex.x, center.y + vertex.z);
+                }
                 break;
             case View::YZ:
+                for (const auto& vertex : face)
+                {
+                    points.emplace_back(center.x + vertex.y, center.y + vertex.z);
+                }
                 break;
             case View::Ortho:
                 break;
         }
-        renderObjects.emplace_back(renderFormat, points);
+        renderObjects.emplace_back(style, points);
     }
 }
 
@@ -76,14 +93,65 @@ std::ostream& operator << (std::ostream& os, const SVG::ViewBox& viewBox)
     return os << viewBox.min.x << " " << viewBox.min.y << " " << viewBox.max.x << " " << viewBox.max.y;
 }
 
+std::ostream& operator<<(std::ostream& os, const SVG::Color& color)
+{
+    struct ColorWriter
+    {
+        std::ostream& os;
+        std::ostream& operator () (const SVG::Color::RGB& rgb) 
+        { 
+            return os << "#" << std::hex << std::right << std::setfill('0') << std::setw(2) << rgb.r << std::setw(2) << rgb.g << std::setw(2) << rgb.b << std::dec;
+        }
+        std::ostream& operator () (const SVG::Color::Predefined& p) 
+        { 
+            return os << SVG::Color::predefinedColors[p];
+        }
+    };
+    return std::visit(ColorWriter{os}, color.data);
+}
+
+std::ostream& operator<<(std::ostream& os, const SVG::Style& style)
+{
+    //<style>
+    //    #a
+    //{
+    //  fill: gold;
+    //  stroke: maroon;
+    //  stroke - width: 2px;
+    //}
+    //    < / style>
+
+    return 
+        os << "style=\"fill:" << style.fill << ";"
+           << "fill-opacity:" << style.fillOpacity << ";"
+           << "fill-rule:" << (style.fillRule == SVG::FillRule::nonzero ? "nonzero" : "evenodd") << ";"
+           << "stroke:" << style.stroke << ";"
+           << "stroke-width:" << style.strokeWidth << ";"
+           << "stroke-opacity:" << style.strokeOpacity << "\"";
+}
+
 std::ostream& operator<<(std::ostream& os, const SVG::RenderObject::Path& path)
 {
-    return os << "PATH\n";
+    if (!path.points.empty())
+    {
+        os << "<path d=\"M" << std::setprecision(5);
+        for (const auto& p : path.points)
+        {
+            os << p.x << "," << p.y << " ";
+        }
+        const auto& p = path.points.front();
+        return os << p.x << "," << p.y << "\"";
+    }
+    else
+    {
+        return os << "<path";
+    }
 }
 
 std::ostream& operator<<(std::ostream& os, const SVG::RenderObject& object)
 {
     std::visit([&os](auto& arg) { os << arg; }, object.data);
+    os << " " << *object.style << "/>\n";
     return os;
 }
 

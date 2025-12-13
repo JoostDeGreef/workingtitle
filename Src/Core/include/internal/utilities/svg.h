@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <memory>
 #include <ostream>
 #include <string>
@@ -34,10 +35,70 @@ public:
         Ortho
     };
 
-    struct RenderFormat
+    struct Color
     {
-        std::string fillColor;
-        std::string lineColor;
+        enum class Predefined
+        {
+            None,
+            Black,
+            Red,
+        };
+        struct RGB
+        {
+            RGB(unsigned char r, unsigned char g, unsigned char b)
+                : r(r)
+                , g(g)
+                , b(b)
+            {}
+            int r, g, b;
+        };
+        Color()
+            : data(Predefined::Black)
+        {}
+        Color(const Predefined p)
+            : data(p)
+        {}
+        Color(const RGB rgb)
+            : data(rgb)
+        {}
+        Color& operator = (const Predefined p)
+        {
+            data = p;
+            return *this;
+        }
+        Color& operator = (const RGB rgb)
+        {
+            data = rgb;
+            return *this;
+        }
+
+        friend std::ostream& operator <<(std::ostream& os, const Color& color);
+    private:
+        std::variant<Predefined,RGB> data;
+        static std::map<Predefined, std::string> predefinedColors;
+    };
+
+    enum class FillRule
+    {
+        nonzero,
+        evenodd
+    };
+
+    struct Style
+    {
+        Style()
+            : fill(Color::Predefined::None)
+            , stroke(Color::Predefined::Black)
+        {}
+
+        Color fill; 
+        double fillOpacity = 1; 
+        FillRule fillRule = FillRule::nonzero;
+        Color stroke; 
+        double strokeWidth = 1;
+        double strokeOpacity = 1;
+
+        friend std::ostream& operator <<(std::ostream& os, const Style &style);
     };
 
     struct RenderObject
@@ -48,20 +109,19 @@ public:
                 : points(points)
             {}
 
-            const Points& points;
+            const Points points;
 
             friend std::ostream& operator <<(std::ostream& os, const RenderObject::Path& path);
         };
 
-        RenderObject(std::shared_ptr<RenderFormat> & renderFormat, const Points & points)
-            : renderFormat(renderFormat)
+        RenderObject(std::shared_ptr<Style> & style, const Points & points)
+            : style(style)
             , data(points)
         {}
 
-        std::shared_ptr<RenderFormat> renderFormat;
-
         friend std::ostream& operator <<(std::ostream& os, const RenderObject& object);
     private:
+        std::shared_ptr<Style> style;
         std::variant<Path> data;
     };
 
@@ -69,7 +129,7 @@ public:
         : width(width)
         , height(height)
         , viewBox(viewBox)
-        , renderFormat(new RenderFormat)
+        , style(new Style)
         , renderObjects()
     {}
 
@@ -77,13 +137,9 @@ public:
     void writeToFile(const std::string & filename) const;
     std::string writeToString() const;
 
-    void setFillColor(const std::string& color)
+    Style& getStyle()
     {
-        getUniqueRenderFormat().fillColor = color;
-    }
-    void setLineColor(const std::string& color)
-    {
-        getUniqueRenderFormat().lineColor = color;
+        return getUniqueRenderFormat();
     }
 
     void addShape(const Shape& shape, const Point & center, const View view);
@@ -94,19 +150,22 @@ private:
     const int height;
     const ViewBox viewBox;
 
-    RenderFormat& getUniqueRenderFormat()
+    Style& getUniqueRenderFormat()
     {
-        if (!renderFormat.unique())
+        if (!style.unique())
         {
-            renderFormat.reset(new RenderFormat(*renderFormat));
+            style.reset(new Style(*style));
         }
-        return *renderFormat;
+        return *style;
     }
 
-    std::shared_ptr<RenderFormat> renderFormat;
+    std::shared_ptr<Style> style;
     std::vector<RenderObject> renderObjects;
 };
 
 std::ostream& operator << (std::ostream& os, const SVG& svg);
+std::ostream& operator << (std::ostream& os, const SVG::Color& color);
+std::ostream& operator << (std::ostream& os, const SVG::RenderObject& object);
+std::ostream& operator << (std::ostream& os, const SVG::RenderObject::Path& path);
+std::ostream& operator << (std::ostream& os, const SVG::Style& style);
 std::ostream& operator << (std::ostream& os, const SVG::ViewBox& viewBox);
-std::ostream& operator<<(std::ostream& os, const SVG::RenderObject& object);
