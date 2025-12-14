@@ -1,7 +1,6 @@
 #pragma once
 
 #include <map>
-#include <memory>
 #include <ostream>
 #include <string>
 #include <variant>
@@ -40,6 +39,7 @@ public:
         enum class Predefined
         {
             None,
+            ContextStroke,
             Black,
             Red,
         };
@@ -51,6 +51,9 @@ public:
                 , b(b)
             {}
             int r, g, b;
+
+            bool operator == (const RGB& other) const;
+            bool operator != (const RGB& other) const;
         };
         Color()
             : data(Predefined::Black)
@@ -71,6 +74,9 @@ public:
             data = rgb;
             return *this;
         }
+
+        bool operator == (const Color& other) const;
+        bool operator != (const Color& other) const;
 
         friend std::ostream& operator <<(std::ostream& os, const Color& color);
     private:
@@ -98,11 +104,29 @@ public:
         double strokeWidth = 1;
         double strokeOpacity = 1;
 
+        std::string id;
+        std::string custom;
+
+        bool operator == (const Style & other) const;
+        bool operator != (const Style& other) const;
+
         friend std::ostream& operator <<(std::ostream& os, const Style &style);
     };
 
     struct RenderObject
     {
+        struct Axis
+        {
+            Axis(const Point& tail, const Point& head)
+                : tail(tail)
+                , head(head)
+            {}
+
+            const Point tail;
+            const Point head;
+
+            friend std::ostream& operator <<(std::ostream& os, const RenderObject::Axis& axis);
+        };
         struct Path
         {
             Path(const Points& points)
@@ -114,24 +138,22 @@ public:
             friend std::ostream& operator <<(std::ostream& os, const RenderObject::Path& path);
         };
 
-        RenderObject(std::shared_ptr<Style> & style, const Points & points)
-            : style(style)
-            , data(points)
+        RenderObject(const std::string & objectClass, const Axis & axis)
+            : objectClass(objectClass)
+            , data(axis)
+        {}
+        RenderObject(const std::string& objectClass, const Path & path)
+            : objectClass(objectClass)
+            , data(path)
         {}
 
         friend std::ostream& operator <<(std::ostream& os, const RenderObject& object);
     private:
-        std::shared_ptr<Style> style;
-        std::variant<Path> data;
+        std::string objectClass;
+        std::variant<Axis,Path> data;
     };
 
-    SVG(const int width, const int height, const ViewBox& viewBox)
-        : width(width)
-        , height(height)
-        , viewBox(viewBox)
-        , style(new Style)
-        , renderObjects()
-    {}
+    SVG(const int width, const int height, const ViewBox& viewBox);
 
     void writeToStream(std::ostream & os) const;
     void writeToFile(const std::string & filename) const;
@@ -139,10 +161,11 @@ public:
 
     Style& getStyle()
     {
-        return getUniqueRenderFormat();
+        return style;
     }
 
-    void addShape(const Shape& shape, const Point & center, const View view);
+    void addAxis(const Point & center, const double length, const View view);
+    void addShape(const Shape& shape, const Point& center, const View view);
 
     friend std::ostream& operator << (std::ostream& os, const SVG& svg);
 private:
@@ -150,16 +173,8 @@ private:
     const int height;
     const ViewBox viewBox;
 
-    Style& getUniqueRenderFormat()
-    {
-        if (!style.unique())
-        {
-            style.reset(new Style(*style));
-        }
-        return *style;
-    }
-
-    std::shared_ptr<Style> style;
+    Style style;
+    std::vector<Style> styles;
     std::vector<RenderObject> renderObjects;
 };
 

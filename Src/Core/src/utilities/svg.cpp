@@ -10,10 +10,30 @@
 
 std::map<SVG::Color::Predefined, std::string> SVG::Color::predefinedColors =
 {
-    {SVG::Color::Predefined::None, "none"},
-    {SVG::Color::Predefined::Black, "black"},
-    {SVG::Color::Predefined::Red, "red"},
+    {SVG::Color::Predefined::None,           "none"},
+    {SVG::Color::Predefined::ContextStroke,  "context-stroke"},
+    {SVG::Color::Predefined::Black,          "black"},
+    {SVG::Color::Predefined::Red,            "red"},
 };
+
+SVG::SVG(const int width, const int height, const ViewBox& viewBox)
+    : width(width)
+    , height(height)
+    , viewBox(viewBox)
+    , style()
+    , styles()
+    , renderObjects()
+{
+    Style arrowTip;
+    arrowTip.fill = SVG::Color::Predefined::ContextStroke;
+    arrowTip.fillRule = SVG::FillRule::evenodd;
+    arrowTip.fillOpacity = 1;
+    arrowTip.stroke = SVG::Color::Predefined::ContextStroke;
+    arrowTip.strokeWidth = 1;
+    arrowTip.strokeOpacity = 1;
+    arrowTip.id = "S0";
+    styles.emplace_back(arrowTip);
+}
 
 void SVG::writeToStream(std::ostream& os) const
 {
@@ -21,8 +41,29 @@ void SVG::writeToStream(std::ostream& os) const
     os << "<svg xmlns = \"http://www.w3.org/2000/svg\"\n"
           "     xmlns:xlink = \"http://www.w3.org/1999/xlink\"\n"
           "     width = \"" << width << "\" height = \"" << height << "\" viewBox = \"" << viewBox << "\">\n";
-    // write axis
-       // TODO
+    // write styles
+    os << "<style>\n";
+    for (const auto& style : styles)
+    {
+        os << style;
+    }
+    os << "</style>\n";
+    // definitions for axis
+    os  << "<defs>\n"
+        << "  <marker id = \"arrowTip\"\n"
+        << "          markerHeight = \"6.155\"\n"
+        << "          markerWidth = \"5.324\"\n"
+        << "          orient = \"auto-start-reverse\"\n"
+        << "          preserveAspectRatio = \"xMidYMid\"\n"
+        << "          refX = \"0\"\n"
+        << "          refY = \"0\"\n"
+        << "          style = \"overflow:visible\"\n"
+        << "          viewBox = \"0 0 5.324 6.155\">\n"
+        << "    <path d = \"m5.77 0-8.65 5V-5Z\"\n"
+        << "          class = \"S0\"\n"
+        << "          transform = \"scale(.5)\" />\n"
+        << "  </marker>\n"
+        << "</defs>\n";
     // sort the objects by depth
        // TODO
     // write all objects
@@ -47,6 +88,64 @@ std::string SVG::writeToString() const
     return s.str();
 }
 
+void SVG::addAxis(const Point& center, const double length, const View view)
+{
+    auto axisStyle = style;
+    axisStyle.custom = "marker-end: url(#arrowTip)";
+    if (styles.empty() || styles.back() != axisStyle)
+    {
+        axisStyle.id = "S" + std::to_string(styles.size());
+        styles.emplace_back(axisStyle);
+    }
+    switch (view)
+    {
+    case View::XY:
+        {
+            // X
+            Point tail(center.x - length / 5, center.y);
+            Point head(center.x + length, center.y);
+            renderObjects.emplace_back(styles.back().id, SVG::RenderObject::Axis(tail, head));
+        }
+        {
+            // Y
+            Point tail(center.x, center.y + length / 5);
+            Point head(center.x, center.y - length);
+            renderObjects.emplace_back(styles.back().id, SVG::RenderObject::Axis(tail, head));
+        }
+        break;
+    case View::XZ:
+        {
+            // X
+            Point tail(center.x - length / 5, center.y);
+            Point head(center.x + length, center.y);
+            renderObjects.emplace_back(styles.back().id, SVG::RenderObject::Axis(tail, head));
+        }
+        break;
+    case View::YZ:
+        break;
+    case View::Ortho:
+        {
+            // X
+            Point tail(center.x + 0.3 * length / 5, center.y - 0.5 * length / 5);
+            Point head(center.x - 0.3 * length, center.y + 0.5 * length);
+            renderObjects.emplace_back(styles.back().id, SVG::RenderObject::Axis(tail, head));
+        }
+        {
+            // Y
+            Point tail(center.x - length / 5, center.y);
+            Point head(center.x + length, center.y);
+            renderObjects.emplace_back(styles.back().id, SVG::RenderObject::Axis(tail, head));
+        }
+        {
+            // Z
+            Point tail(center.x, center.y + length / 5);
+            Point head(center.x, center.y - length);
+            renderObjects.emplace_back(styles.back().id, SVG::RenderObject::Axis(tail, head));
+        }
+        break;
+    }
+}
+
 void SVG::addShape(const Shape& shape, const Point& center, const View view)
 {
     for (const auto& face : shape.getTransformedFaces())
@@ -55,30 +154,42 @@ void SVG::addShape(const Shape& shape, const Point& center, const View view)
         points.reserve(face.size());
         switch (view)
         {
+            // TODO: check the XY, XZ, YZ views!
             case View::XY:
                 for (const auto& vertex : face)
                 {
                     // decide to cull based on face.getNormal()
                     // add something like a z-index?
-                    points.emplace_back(center.x + vertex.x, center.y + vertex.y);
+                    points.emplace_back(center.x + vertex.x, center.y - vertex.y);
                 }
                 break;
             case View::XZ:
                 for (const auto& vertex : face)
                 {
-                    points.emplace_back(center.x + vertex.x, center.y + vertex.z);
+                    points.emplace_back(center.x + vertex.x, center.y - vertex.z);
                 }
                 break;
             case View::YZ:
                 for (const auto& vertex : face)
                 {
-                    points.emplace_back(center.x + vertex.y, center.y + vertex.z);
+                    points.emplace_back(center.x + vertex.y, center.y - vertex.z);
                 }
                 break;
             case View::Ortho:
+                for (const auto& vertex : face)
+                {
+                    auto x = vertex.y - vertex.x*0.3;
+                    auto y = vertex.z - vertex.x*0.5;
+                    points.emplace_back(center.x + x, center.y - y);
+                }
                 break;
         }
-        renderObjects.emplace_back(style, points);
+        if (styles.empty() || styles.back() != style)
+        {
+            style.id = "S" + std::to_string(styles.size());
+            styles.emplace_back(style);
+        }
+        renderObjects.emplace_back(style.id, SVG::RenderObject::Path(points));
     }
 }
 
@@ -112,22 +223,23 @@ std::ostream& operator<<(std::ostream& os, const SVG::Color& color)
 
 std::ostream& operator<<(std::ostream& os, const SVG::Style& style)
 {
-    //<style>
-    //    #a
-    //{
-    //  fill: gold;
-    //  stroke: maroon;
-    //  stroke - width: 2px;
-    //}
-    //    < / style>
+    return os
+        << "." << style.id << "\n"
+        << "{\n"
+        << "  fill: " << style.fill << "; \n"
+        << "  fill-opacity: " << style.fillOpacity << ";\n"
+        << "  fill-rule: " << (style.fillRule == SVG::FillRule::nonzero ? "nonzero" : "evenodd") << ";\n"
+        << "  stroke: " << style.stroke << ";\n"
+        << "  stroke-width: " << style.strokeWidth << ";\n"
+        << "  stroke-opacity: " << style.strokeOpacity << ";\n"
+        << (style.custom.empty() ? "}\n" : ("  " + style.custom + ";\n}\n"));
+}
 
-    return 
-        os << "style=\"fill:" << style.fill << ";"
-           << "fill-opacity:" << style.fillOpacity << ";"
-           << "fill-rule:" << (style.fillRule == SVG::FillRule::nonzero ? "nonzero" : "evenodd") << ";"
-           << "stroke:" << style.stroke << ";"
-           << "stroke-width:" << style.strokeWidth << ";"
-           << "stroke-opacity:" << style.strokeOpacity << "\"";
+std::ostream& operator<<(std::ostream& os, const SVG::RenderObject::Axis& axis)
+{
+    os << "<path d=\"M" << std::setprecision(5);
+    os << axis.tail.x << "," << axis.tail.y << " ";
+    return os << axis.head.x << "," << axis.head.y << "\"";
 }
 
 std::ostream& operator<<(std::ostream& os, const SVG::RenderObject::Path& path)
@@ -151,7 +263,43 @@ std::ostream& operator<<(std::ostream& os, const SVG::RenderObject::Path& path)
 std::ostream& operator<<(std::ostream& os, const SVG::RenderObject& object)
 {
     std::visit([&os](auto& arg) { os << arg; }, object.data);
-    os << " " << *object.style << "/>\n";
+    os << " class=\"" << object.objectClass << "\" />\n";
     return os;
 }
 
+bool SVG::Style::operator==(const Style& other) const
+{
+    // ignore id here
+    return fill == other.fill
+        && fillOpacity == other.fillOpacity
+        && fillRule == other.fillRule
+        && stroke == other.stroke
+        && strokeWidth == other.strokeWidth
+        && strokeOpacity == other.strokeOpacity
+        && custom == other.custom;
+}
+
+bool SVG::Style::operator!=(const Style& other) const
+{
+    return !(*this == other);
+}
+
+bool SVG::Color::operator==(const Color& other) const
+{
+    return data == other.data;
+}
+
+bool SVG::Color::operator!=(const Color& other) const
+{
+    return !(*this == other);
+}
+
+bool SVG::Color::RGB::operator==(const RGB& other) const
+{
+    return r == other.r && g == other.g && b == other.b;
+}
+
+bool SVG::Color::RGB::operator!=(const RGB& other) const
+{
+    return !(*this == other);
+}
