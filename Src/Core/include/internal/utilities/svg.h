@@ -4,15 +4,30 @@
 #include <ostream>
 #include <string>
 #include <variant>
+#include <vector>
+
+#include "internal/generic/Scalar.h"
 
 #include "internal/geometry/Point.h"
 #include "internal/geometry/Points.h"
-
 #include "internal/geometry/Shape.h"
+#include "internal/geometry/Vertex.h"
 
 class SVG
 {
 public:
+    struct View
+    {
+        View(const Vertex & center = Vertex(0,0,0),
+             const Vertex & eye = Vertex(1,0,0),
+             const Vertex & up = Vertex(0,0,1))
+        {}
+
+        Vertex center;
+        Vertex eye;
+        Vertex up;
+    };
+
     struct ViewBox
     {
         ViewBox(const Scalar min_x, const Scalar min_y, const Scalar max_x, const Scalar max_y)
@@ -24,14 +39,6 @@ public:
         Point max;
 
         friend std::ostream& operator <<(std::ostream& os, const ViewBox& viewBox);
-    };
-
-    enum class View
-    {
-        XY,
-        XZ,
-        YZ,
-        Ortho
     };
 
     struct Color
@@ -153,7 +160,9 @@ public:
         std::variant<Axis,Path> data;
     };
 
-    SVG(const int width, const int height, const ViewBox& viewBox);
+    SVG(const int width, const int height, const ViewBox& viewBox, const View & view = View());
+    
+    void setView(const View& view);
 
     void writeToStream(std::ostream & os) const;
     void writeToFile(const std::string & filename) const;
@@ -164,18 +173,21 @@ public:
         return style;
     }
 
-    void addAxis(const Point & center, const double length, const View view);
-    void addShape(const Shape& shape, const Point& center, const View view);
+    void addAxis(const Vertex & center, const double length);
+    void addShape(const Shape& shape, const Vertex& center);
 
     friend std::ostream& operator << (std::ostream& os, const SVG& svg);
 private:
     const int width;
     const int height;
     const ViewBox viewBox;
+    View view;
 
     Style style;
     std::vector<Style> styles;
     std::vector<RenderObject> renderObjects;
+
+    Point project(const Vertex & v) const;
 };
 
 std::ostream& operator << (std::ostream& os, const SVG& svg);

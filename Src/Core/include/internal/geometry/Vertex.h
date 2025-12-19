@@ -163,14 +163,14 @@ inline Vertex& Vertex::operator *= (const Scalar& factor)
 
 inline Vertex Vertex::operator/(const Scalar& factor) const
 {
-    return Vertex(*this) /= factor;
+    return Vertex(*this) *= (((Scalar)1.0)/factor);
 }
 
 inline Vertex& Vertex::operator/=(const Scalar& factor)
 {
-    x /= factor;
-    y /= factor;
-    z /= factor;
+    x *= ((Scalar)1.0) / factor;
+    y *= ((Scalar)1.0) / factor;
+    z *= ((Scalar)1.0) / factor;
     return *this;
 }
 

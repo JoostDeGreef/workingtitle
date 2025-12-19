@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <variant>
 
 #include "internal/geometry/Points.h"
@@ -16,10 +17,11 @@ std::map<SVG::Color::Predefined, std::string> SVG::Color::predefinedColors =
     {SVG::Color::Predefined::Red,            "red"},
 };
 
-SVG::SVG(const int width, const int height, const ViewBox& viewBox)
+SVG::SVG(const int width, const int height, const ViewBox& viewBox, const View& view)
     : width(width)
     , height(height)
     , viewBox(viewBox)
+    , view(view)
     , style()
     , styles()
     , renderObjects()
@@ -33,6 +35,11 @@ SVG::SVG(const int width, const int height, const ViewBox& viewBox)
     arrowTip.strokeOpacity = 1;
     arrowTip.id = "S0";
     styles.emplace_back(arrowTip);
+}
+
+void SVG::setView(const View& view)
+{
+    this->view = view;
 }
 
 void SVG::writeToStream(std::ostream& os) const
@@ -88,7 +95,7 @@ std::string SVG::writeToString() const
     return s.str();
 }
 
-void SVG::addAxis(const Point& center, const double length, const View view)
+void SVG::addAxis(const Vertex& center, const double length)
 {
     auto axisStyle = style;
     axisStyle.custom = "marker-end: url(#arrowTip)";
@@ -97,100 +104,50 @@ void SVG::addAxis(const Point& center, const double length, const View view)
         axisStyle.id = "S" + std::to_string(styles.size());
         styles.emplace_back(axisStyle);
     }
-    switch (view)
+    Vertex axis[6] =
     {
-    case View::XY:
-        {
-            // X
-            Point tail(center.x - length / 5, center.y);
-            Point head(center.x + length, center.y);
-            renderObjects.emplace_back(styles.back().id, SVG::RenderObject::Axis(tail, head));
-        }
-        {
-            // Y
-            Point tail(center.x, center.y + length / 5);
-            Point head(center.x, center.y - length);
-            renderObjects.emplace_back(styles.back().id, SVG::RenderObject::Axis(tail, head));
-        }
-        break;
-    case View::XZ:
-        {
-            // X
-            Point tail(center.x - length / 5, center.y);
-            Point head(center.x + length, center.y);
-            renderObjects.emplace_back(styles.back().id, SVG::RenderObject::Axis(tail, head));
-        }
-        break;
-    case View::YZ:
-        break;
-    case View::Ortho:
-        {
-            // X
-            Point tail(center.x + 0.3 * length / 5, center.y - 0.5 * length / 5);
-            Point head(center.x - 0.3 * length, center.y + 0.5 * length);
-            renderObjects.emplace_back(styles.back().id, SVG::RenderObject::Axis(tail, head));
-        }
-        {
-            // Y
-            Point tail(center.x - length / 5, center.y);
-            Point head(center.x + length, center.y);
-            renderObjects.emplace_back(styles.back().id, SVG::RenderObject::Axis(tail, head));
-        }
-        {
-            // Z
-            Point tail(center.x, center.y + length / 5);
-            Point head(center.x, center.y - length);
-            renderObjects.emplace_back(styles.back().id, SVG::RenderObject::Axis(tail, head));
-        }
-        break;
+        // X
+        {center.x - length / 5, center.y, center.z},
+        {center.x + length,     center.y, center.z},
+        // Y
+        {center.x, center.y - length / 5, center.z},
+        {center.x, center.y + length,     center.z},
+        // Z
+        {center.x, center.y, center.z - length / 5},
+        {center.x, center.y, center.z + length    },
+    };
+    for (size_t i = 0; i < 3; ++i)
+    {
+        Point tail = project(axis[i * 2]);
+        Point head = project(axis[i * 2 + 1]);
+        renderObjects.emplace_back(styles.back().id, SVG::RenderObject::Axis(tail, head));
     }
 }
 
-void SVG::addShape(const Shape& shape, const Point& center, const View view)
+void SVG::addShape(const Shape& shape, const Vertex& center)
 {
+    if (styles.empty() || styles.back() != style)
+    {
+        style.id = "S" + std::to_string(styles.size());
+        styles.emplace_back(style);
+    }
     for (const auto& face : shape.getTransformedFaces())
     {
         Points points;
         points.reserve(face.size());
-        switch (view)
+        for (const auto& vertex : face)
         {
-            // TODO: check the XY, XZ, YZ views!
-            case View::XY:
-                for (const auto& vertex : face)
-                {
-                    // decide to cull based on face.getNormal()
-                    // add something like a z-index?
-                    points.emplace_back(center.x + vertex.x, center.y - vertex.y);
-                }
-                break;
-            case View::XZ:
-                for (const auto& vertex : face)
-                {
-                    points.emplace_back(center.x + vertex.x, center.y - vertex.z);
-                }
-                break;
-            case View::YZ:
-                for (const auto& vertex : face)
-                {
-                    points.emplace_back(center.x + vertex.y, center.y - vertex.z);
-                }
-                break;
-            case View::Ortho:
-                for (const auto& vertex : face)
-                {
-                    auto x = vertex.y - vertex.x*0.3;
-                    auto y = vertex.z - vertex.x*0.5;
-                    points.emplace_back(center.x + x, center.y - y);
-                }
-                break;
+            auto x = vertex.y - vertex.x*0.3;
+            auto y = vertex.z - vertex.x*0.5;
+            points.emplace_back(center.x + x, center.y - y);
         }
-        if (styles.empty() || styles.back() != style)
-        {
-            style.id = "S" + std::to_string(styles.size());
-            styles.emplace_back(style);
-        }
-        renderObjects.emplace_back(style.id, SVG::RenderObject::Path(points));
+        renderObjects.emplace_back(styles.back().id, SVG::RenderObject::Path(points));
     }
+}
+
+Point SVG::project(const Vertex& v) const
+{
+    return Point();
 }
 
 std::ostream& operator << (std::ostream& os, const SVG& svg)
