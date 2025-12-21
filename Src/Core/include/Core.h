@@ -12,6 +12,7 @@
 #include <random>
 #include <stdexcept>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 #include "internal/generic/Constants.h"
@@ -19,6 +20,7 @@
 #include "internal/generic/Limits.h"
 #include "internal/generic/Numerics.h"
 #include "internal/generic/Scalar.h"
+#include "internal/generic/StackAllocator.h"
 
 #include "internal/geometry/BoundingObject.h"
 #include "internal/geometry/Contour2D.h"
