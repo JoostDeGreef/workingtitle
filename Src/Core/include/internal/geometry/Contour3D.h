@@ -1,8 +1,7 @@
 #pragma once
 
 #include "internal/generic/Scalar.h"
-
-#include "internal/geometry/Vertices.h"
+#include "internal/generic/Vertices.h"
 
 //
 // 3D Contours are defined counterclockwise in the xyz plane.

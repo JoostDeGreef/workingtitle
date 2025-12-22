@@ -6,12 +6,13 @@
 #include <variant>
 #include <vector>
 
+#include "internal/generic/Point.h"
+#include "internal/generic/Points.h"
 #include "internal/generic/Scalar.h"
+#include "internal/generic/Vertex.h"
 
-#include "internal/geometry/Point.h"
-#include "internal/geometry/Points.h"
 #include "internal/geometry/Shape.h"
-#include "internal/geometry/Vertex.h"
+#include "internal/geometry/Transformation.h"
 
 class SVG
 {
@@ -21,11 +22,31 @@ public:
         View(const Vertex & center = Vertex(0,0,0),
              const Vertex & eye = Vertex(1,0,0),
              const Vertex & up = Vertex(0,0,1))
+            : center(center)
+            , eye(eye)
+            , up(up)
+        {
+            initTransformation();
+        }
+        View(const View & other)
+            : center(other.center)
+            , eye(other.eye)
+            , up(other.up)
+            , transformation(other.transformation)
         {}
 
         Vertex center;
         Vertex eye;
         Vertex up;
+
+        const Transformation& getTransformation() const
+        {
+            return transformation;
+        }
+    protected:
+        Transformation transformation;
+
+        void initTransformation();
     };
 
     struct ViewBox

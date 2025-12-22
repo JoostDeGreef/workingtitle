@@ -1,11 +1,12 @@
-#include <fstream>
+﻿#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <variant>
 
-#include "internal/geometry/Points.h"
+#include "internal/generic/Normal.h"
+#include "internal/generic/Points.h"
 
 #include "internal/utilities/svg.h"
 
@@ -147,6 +148,7 @@ void SVG::addShape(const Shape& shape, const Vertex& center)
 
 Point SVG::project(const Vertex& v) const
 {
+    // TODO
     return Point();
 }
 
@@ -259,4 +261,15 @@ bool SVG::Color::RGB::operator==(const RGB& other) const
 bool SVG::Color::RGB::operator!=(const RGB& other) const
 {
     return !(*this == other);
+}
+
+void SVG::View::initTransformation()
+{
+    auto axis = Normal(center - eye);
+    Scalar angle;
+
+    Transformation t(-center);
+    Transformation r(axis, angle);
+
+    transformation = r*t;
 }

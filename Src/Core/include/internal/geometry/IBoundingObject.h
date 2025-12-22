@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "internal/geometry/Vertices.h"
+#include "internal/generic/Vertices.h"
 
 class IBoundingObject
 {

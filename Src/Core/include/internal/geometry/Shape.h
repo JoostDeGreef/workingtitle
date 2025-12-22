@@ -1,13 +1,14 @@
 ﻿#pragma once
 
+#include "internal/generic/Normals.h"
+#include "internal/generic/Vertices.h"
+
 #include "internal/geometry/BoundingObject.h"
 #include "internal/geometry/Edges.h"
 #include "internal/geometry/Faces.h"
 #include "internal/geometry/FaceVisitor.h"
 #include "internal/geometry/FacesVisitor.h"
-#include "internal/geometry/Normals.h"
 #include "internal/geometry/Transformation.h"
-#include "internal/geometry/Vertices.h"
 
 class ShapeFactory;
 

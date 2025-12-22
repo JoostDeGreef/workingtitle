@@ -38,9 +38,11 @@ public:
     void copy(const Vertex& other);
     void swap(Vertex& other) noexcept;
 
+    const Vertex & operator + () const;
     Vertex   operator + (const Vertex& other) const;
     Vertex & operator += (const Vertex& other);
 
+    Vertex   operator - () const;
     Vertex   operator - (const Vertex& other) const;
     Vertex & operator -= (const Vertex& other);
 
@@ -120,6 +122,16 @@ inline void Vertex::swap(Vertex& other) noexcept
     std::swap(x, other.x);
     std::swap(y, other.y);
     std::swap(z, other.z);
+}
+
+inline Vertex Vertex::operator-() const
+{
+    return Vertex(-x,-y,-z);
+}
+
+inline const Vertex& Vertex::operator+() const
+{
+    return *this;
 }
 
 inline Vertex Vertex::operator + (const Vertex& other) const

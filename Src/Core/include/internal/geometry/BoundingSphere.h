@@ -1,11 +1,11 @@
 ﻿#pragma once
 
 #include "internal/generic/Constants.h"
+#include "internal/generic/Vertex.h"
+#include "internal/generic/Vertices.h"
 
 #include "internal/geometry/BoundingBox.h"
 #include "internal/geometry/IBoundingObject.h"
-#include "internal/geometry/Vertex.h"
-#include "internal/geometry/Vertices.h"
 
 class BoundingSphere final : public IBoundingObject 
 {

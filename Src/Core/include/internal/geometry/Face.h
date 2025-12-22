@@ -198,7 +198,7 @@ inline void Face::clear()
 inline void Face::set(const std::vector<Index>& points)
 {
     clear();
-    count = points.size();
+    count = (Index)points.size();
     if (count <= maxFixPoints)
     {
         for (size_t i = 0; i < count; ++i)

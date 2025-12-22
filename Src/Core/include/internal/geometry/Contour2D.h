@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "internal/geometry/Points.h"
+#include "internal/generic/Points.h"
 #include "internal/generic/Scalar.h"
 
 //

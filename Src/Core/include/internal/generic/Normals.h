@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "internal/geometry/Normal.h"
+#include "internal/generic/Normal.h"
 
 typedef std::vector<Normal> Normals;
 

@@ -1,10 +1,10 @@
 ﻿#pragma once
 
 #include "internal/generic/Scalar.h"
+#include "internal/generic/Vertex.h"
 
 #include "internal/geometry/Contour2D.h"
 #include "internal/geometry/Shape.h"
-#include "internal/geometry/Vertex.h"
 
 class ShapeFactory
 {

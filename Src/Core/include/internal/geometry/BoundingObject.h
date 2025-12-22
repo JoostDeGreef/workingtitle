@@ -3,11 +3,12 @@
 #include <cassert>
 #include <variant>
 
+#include "internal/generic/Vertex.h"
+#include "internal/generic/Vertices.h"
+
 #include "internal/geometry/BoundingBox.h"
 #include "internal/geometry/BoundingSphere.h"
 #include "internal/geometry/IBoundingObject.h"
-#include "internal/geometry/Vertex.h"
-#include "internal/geometry/Vertices.h"
 
 class BoundingObject final : public IBoundingObject
 {

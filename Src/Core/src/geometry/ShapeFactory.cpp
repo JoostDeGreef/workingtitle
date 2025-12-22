@@ -1,7 +1,8 @@
 
+#include "internal/generic/Vertices.h"
+
 #include "internal/geometry/Faces.h"
 #include "internal/geometry/ShapeFactory.h"
-#include "internal/geometry/Vertices.h"
 
 Shape ShapeFactory::Box(const Vertex& min, const Vertex& max)
 {

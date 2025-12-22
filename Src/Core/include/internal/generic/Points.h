@@ -2,6 +2,6 @@
 
 #include <vector>
 
-#include "internal/geometry/Point.h"
+#include "internal/generic/Point.h"
 
 typedef std::vector<Point> Points;

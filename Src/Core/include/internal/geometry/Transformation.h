@@ -2,11 +2,10 @@
 
 #include <array>
 
+#include "internal/generic/Normal.h"
+#include "internal/generic/Vertex.h"
+#include "internal/generic/Vertices.h"
 #include "internal/generic/Scalar.h"
-
-#include "internal/geometry/Normal.h"
-#include "internal/geometry/Vertex.h"
-#include "internal/geometry/Vertices.h"
 
 class Transformation
 {
@@ -20,7 +19,10 @@ public:
     Vertex operator * (const Vertex& v) const;
     Vertices operator * (const Vertices& v) const;
 
-    Transformation& operator *= (const Transformation& other);
+    const Transformation  operator *  (const Transformation& other) const;
+          Transformation& operator *= (const Transformation& other);
+
+    Transformation& operator = (const Transformation& other);
 protected:
     std::array<Scalar, 12> transform;
 };

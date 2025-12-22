@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "internal/geometry/Vertex.h"
+#include "internal/generic/Vertex.h"
 
 typedef std::vector<Vertex> Vertices;
 

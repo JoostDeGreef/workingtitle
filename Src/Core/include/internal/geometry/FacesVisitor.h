@@ -1,9 +1,10 @@
-#pragma once
+﻿#pragma once
+
+#include "internal/generic/Vertices.h"
+#include "internal/generic/Normals.h"
 
 #include "internal/geometry/Faces.h"
 #include "internal/geometry/FaceVisitor.h"
-#include "internal/geometry/Vertices.h"
-#include "internal/geometry/Normals.h"
 
 class FacesVisitor
 {
@@ -88,6 +89,6 @@ inline FacesVisitor::const_iterator FacesVisitor::end() const
 }
 inline FacesVisitor::const_iterator FacesVisitor::cend() const
 {
-    return const_iterator(faces, vertices, normals, faces.size());
+    return const_iterator(faces, vertices, normals, (Index)faces.size());
 }
 

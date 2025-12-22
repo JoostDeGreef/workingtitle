@@ -2,9 +2,10 @@
 
 #include <algorithm>
 
+#include "internal/generic/Vertex.h"
+#include "internal/generic/Vertices.h"
+
 #include "internal/geometry/IBoundingObject.h"
-#include "internal/geometry/Vertex.h"
-#include "internal/geometry/Vertices.h"
 
 class BoundingBox final : public IBoundingObject
 {

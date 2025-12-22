@@ -1,8 +1,9 @@
 #pragma once
 
+#include "internal/generic/Normal.h"
+#include "internal/generic/Vertices.h"
+
 #include "internal/geometry/Face.h"
-#include "internal/geometry/Normal.h"
-#include "internal/geometry/Vertices.h"
 
 class FaceVisitor
 {

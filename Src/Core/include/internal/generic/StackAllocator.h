@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <deque>
 #include <iostream>
@@ -36,8 +36,10 @@ public:
     template<typename ALLOCATOR>
     typename ALLOCATOR::pointer allocate(std::size_t n, ALLOCATOR & allocator)
     {
+        using pointer = std::allocator_traits<ALLOCATOR>::pointer;
+
         int index = 0;
-        int needed = (n * sizeof(typename ALLOCATOR::value_type) + sizeof(info) - 1) / sizeof(info);
+        int needed = (int)((n * sizeof(typename ALLOCATOR::value_type) + sizeof(info) - 1) / sizeof(info));
         while(index< blocks)
         {
             int nextIndex = data[index].next;
@@ -51,12 +53,12 @@ public:
                     data[newIndex].prev = index;
                     data[newIndex].next = -nextIndex;
                     if(blocks != nextIndex) data[nextIndex].prev = newIndex;
-                    return (typename ALLOCATOR::pointer)&data[newIndex+1];
+                    return (pointer)&data[newIndex+1];
                 }
                 else if(gap == 0 || gap == 1)
                 {
                     data[index].next = -nextIndex;
-                    return (typename ALLOCATOR::pointer)&data[index+1];
+                    return (pointer)&data[index+1];
                 }
             }            
             index = abs(nextIndex);
@@ -70,7 +72,7 @@ public:
     template<typename ALLOCATOR>
     void deallocate(typename ALLOCATOR::pointer p, std::size_t n, ALLOCATOR & allocator)
     {
-        int index = ((size_t)((info*)p - 1) - (size_t)&data[0]) / sizeof(info);
+        int index = (int)(((size_t)((info*)p - 1) - (size_t)&data[0]) / sizeof(info));
         if( (index >= 0) && (index < blocks))
         {
             data[index].next = -data[index].next;
