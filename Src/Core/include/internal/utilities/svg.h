@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <map>
 #include <ostream>
@@ -118,6 +118,15 @@ public:
         evenodd
     };
 
+    enum class StrokeLineJoin
+    {
+        arcs,
+        bevel,
+        miter,
+        miterclip,
+        round
+    };
+
     struct Style
     {
         Style()
@@ -128,6 +137,7 @@ public:
         Color fill; 
         double fillOpacity = 1; 
         FillRule fillRule = FillRule::nonzero;
+        StrokeLineJoin strokeLineJoin = StrokeLineJoin::round;
         Color stroke; 
         double strokeWidth = 1;
         double strokeOpacity = 1;
@@ -145,23 +155,27 @@ public:
     {
         struct Axis
         {
-            Axis(const Point& tail, const Point& head)
+            Axis(const Point& tail, const Point& head, const Scalar& z)
                 : tail(tail)
                 , head(head)
+                , z(z)
             {}
 
-            const Point tail;
-            const Point head;
+            Point tail;
+            Point head;
+            Scalar z;
 
             friend std::ostream& operator <<(std::ostream& os, const RenderObject::Axis& axis);
         };
         struct Path
         {
-            Path(const Points& points)
+            Path(const Points& points, const Scalar & z)
                 : points(points)
+                , z(z)
             {}
 
-            const Points points;
+            Points points;
+            Scalar z;
 
             friend std::ostream& operator <<(std::ostream& os, const RenderObject::Path& path);
         };
@@ -175,6 +189,9 @@ public:
             , data(path)
         {}
 
+        bool operator < (const RenderObject& other) const;
+        RenderObject& operator = (const RenderObject& other);
+
         friend std::ostream& operator <<(std::ostream& os, const RenderObject& object);
     private:
         std::string objectClass;
@@ -185,14 +202,15 @@ public:
     
     void setView(const View& view);
 
-    void writeToStream(std::ostream & os) const;
-    void writeToFile(const std::string & filename) const;
-    std::string writeToString() const;
+    void writeToStream(std::ostream & os);
+    void writeToFile(const std::string & filename);
+    std::string writeToString();
 
     Style& getStyle()
     {
         return style;
     }
+    void setStyleId(Style &style);
 
     void addAxis(const Vertex & center, const double length);
     void addShape(const Shape& shape, const Vertex& center);
@@ -208,7 +226,7 @@ private:
     std::vector<Style> styles;
     std::vector<RenderObject> renderObjects;
 
-    Point project(const Vertex & v) const;
+    Vertex project(const Vertex & v) const;
 };
 
 std::ostream& operator << (std::ostream& os, const SVG& svg);
@@ -217,3 +235,4 @@ std::ostream& operator << (std::ostream& os, const SVG::RenderObject& object);
 std::ostream& operator << (std::ostream& os, const SVG::RenderObject::Path& path);
 std::ostream& operator << (std::ostream& os, const SVG::Style& style);
 std::ostream& operator << (std::ostream& os, const SVG::ViewBox& viewBox);
+std::ostream& operator << (std::ostream& os, const SVG::StrokeLineJoin& strokeLineJoin);

@@ -1,5 +1,4 @@
-﻿#include "gtest/gtest.h"
-
+﻿#include "GoogleTest.h"
 #include "Core.h"
 
 using namespace std;

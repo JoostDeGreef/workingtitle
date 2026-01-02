@@ -11,9 +11,10 @@ add_executable (${PROJECT_NAME}
                 "generic/MatrixTest.cpp"
                 "generic/NumericsTest.cpp"
                 "generic/StackAllocatorTest.cpp"
+                "generic/VertexTest.cpp"
                 "geometry/BoundingObjectTest.cpp" 
                 "geometry/FaceTest.cpp"
                 "geometry/ShapeTest.cpp" 
-                "generic/VertexTest.cpp"
+                "geometry/TransformationTest.cpp"
                 "utilities/SVGTest.cpp")
 

@@ -1,4 +1,4 @@
-include(Common)
+﻿include(Common)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -19,11 +19,13 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 project(googletest-runner)
 
 add_library (${PROJECT_NAME}
-             "src-extra/ConsoleOutput.cpp"
-             "src-extra/ConsoleOutput.h"
-             "src-extra/GoogleTestMain.cpp"
-             "src-extra/VisualStudioOutput.cpp"
-             "src-extra/VisualStudioOutput.h")
+             "src-extra/src/ConsoleOutput.cpp"
+             "src-extra/src/ConsoleOutput.h"
+             "src-extra/src/GoogleTestMain.cpp"
+             "src-extra/src/VisualStudioOutput.cpp"
+             "src-extra/src/VisualStudioOutput.h"
+             "src-extra/include/GoogleTest.h")
 
+target_include_directories(${PROJECT_NAME} PUBLIC "src-extra/include")
 target_link_libraries(${PROJECT_NAME} PUBLIC GTest::gtest)
 

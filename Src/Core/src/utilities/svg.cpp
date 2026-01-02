@@ -1,4 +1,5 @@
-﻿#include <fstream>
+﻿#include <algorithm>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -43,7 +44,7 @@ void SVG::setView(const View& view)
     this->view = view;
 }
 
-void SVG::writeToStream(std::ostream& os) const
+void SVG::writeToStream(std::ostream& os)
 {
     // header
     os << "<svg xmlns = \"http://www.w3.org/2000/svg\"\n"
@@ -73,7 +74,7 @@ void SVG::writeToStream(std::ostream& os) const
         << "  </marker>\n"
         << "</defs>\n";
     // sort the objects by depth
-       // TODO
+    std::sort(renderObjects.begin(), renderObjects.end());
     // write all objects
     for (const auto& object : renderObjects)
     {
@@ -83,28 +84,38 @@ void SVG::writeToStream(std::ostream& os) const
     os << "</svg>\n";
 }
 
-void SVG::writeToFile(const std::string& filename) const
+void SVG::writeToFile(const std::string& filename)
 {
     std::fstream f(filename, std::fstream::out | std::fstream::trunc);
     writeToStream(f);
 }
 
-std::string SVG::writeToString() const
+std::string SVG::writeToString()
 {
     std::stringstream s;
     writeToStream(s);
     return s.str();
 }
 
+void SVG::setStyleId(Style& style)
+{
+    auto iter = std::find(styles.rbegin(), styles.rend(), style);
+    if (iter==styles.rend())
+    {
+        style.id = "S" + std::to_string(styles.size());
+        styles.emplace_back(style);
+    }
+    else
+    {
+        style.id = iter->id;
+    }
+}
+
 void SVG::addAxis(const Vertex& center, const double length)
 {
     auto axisStyle = style;
     axisStyle.custom = "marker-end: url(#arrowTip)";
-    if (styles.empty() || styles.back() != axisStyle)
-    {
-        axisStyle.id = "S" + std::to_string(styles.size());
-        styles.emplace_back(axisStyle);
-    }
+    setStyleId(axisStyle);
     Vertex axis[6] =
     {
         // X
@@ -117,42 +128,41 @@ void SVG::addAxis(const Vertex& center, const double length)
         {center.x, center.y, center.z - length / 5},
         {center.x, center.y, center.z + length    },
     };
+    Scalar z;
     for (size_t i = 0; i < 3; ++i)
     {
-        Point tail = project(axis[i * 2]);
-        Point head = project(axis[i * 2 + 1]);
-        renderObjects.emplace_back(styles.back().id, SVG::RenderObject::Axis(tail, head));
+        Vertex tail = project(axis[i * 2]);
+        Vertex head = project(axis[i * 2 + 1]);
+        if (!i) z = tail.z;
+        renderObjects.emplace_back(axisStyle.id, SVG::RenderObject::Axis({ tail.x, tail.y }, { head.x,head.y }, z));
     }
 }
 
 void SVG::addShape(const Shape& shape, const Vertex& center)
 {
-    if (styles.empty() || styles.back() != style)
-    {
-        style.id = "S" + std::to_string(styles.size());
-        styles.emplace_back(style);
-    }
+    setStyleId(style);
+    auto transform = view.getTransformation();
     for (const auto& face : shape.getTransformedFaces())
     {
         Points points;
         points.reserve(face.size());
+        Scalar z = 0;
         for (const auto& vertex : face)
         {
-            auto x = vertex.y - vertex.x*0.3;
-            auto y = vertex.z - vertex.x*0.5;
-            points.emplace_back(center.x + x, center.y - y);
+            auto display = transform * vertex;
+            points.emplace_back(display.x, display.y);
+            z += display.z;
         }
-        renderObjects.emplace_back(styles.back().id, SVG::RenderObject::Path(points));
+        renderObjects.emplace_back(style.id, SVG::RenderObject::Path(points, z / face.size()));
     }
 }
 
-Point SVG::project(const Vertex& v) const
+Vertex SVG::project(const Vertex& v) const
 {
-    // TODO
-    return Point();
+    return view.getTransformation() * v;
 }
 
-std::ostream& operator << (std::ostream& os, const SVG& svg)
+std::ostream& operator << (std::ostream& os, SVG& svg)
 {
     svg.writeToStream(os);
     return os;
@@ -161,6 +171,21 @@ std::ostream& operator << (std::ostream& os, const SVG& svg)
 std::ostream& operator << (std::ostream& os, const SVG::ViewBox& viewBox)
 {
     return os << viewBox.min.x << " " << viewBox.min.y << " " << viewBox.max.x << " " << viewBox.max.y;
+}
+
+std::ostream& operator<<(std::ostream& os, const SVG::StrokeLineJoin& strokeLineJoin)
+{
+    switch (strokeLineJoin)
+    {
+    case SVG::StrokeLineJoin::arcs: return os << "arcs";
+    case SVG::StrokeLineJoin::bevel: return os << "bevel";
+    case SVG::StrokeLineJoin::miter: return os << "miter";
+    case SVG::StrokeLineJoin::miterclip: return os << "miter-clip";
+    case SVG::StrokeLineJoin::round: return os << "round";
+    default:
+        assert(false); // Oops. Add the missing enum value...
+        return os;
+    }
 }
 
 std::ostream& operator<<(std::ostream& os, const SVG::Color& color)
@@ -191,6 +216,7 @@ std::ostream& operator<<(std::ostream& os, const SVG::Style& style)
         << "  stroke: " << style.stroke << ";\n"
         << "  stroke-width: " << style.strokeWidth << ";\n"
         << "  stroke-opacity: " << style.strokeOpacity << ";\n"
+        << "  stroke-linejoin: " << style.strokeLineJoin << ";\n"
         << (style.custom.empty() ? "}\n" : ("  " + style.custom + ";\n}\n"));
 }
 
@@ -266,10 +292,22 @@ bool SVG::Color::RGB::operator!=(const RGB& other) const
 void SVG::View::initTransformation()
 {
     auto axis = Normal(center - eye);
-    Scalar angle;
 
-    Transformation t(-center);
-    Transformation r(axis, angle);
+    Transformation t(center);
+    Transformation r2(axis, 0.5);
+    Transformation r(axis, up);
 
-    transformation = r*t;
+    transformation = t*r;
+}
+
+bool SVG::RenderObject::operator<(const RenderObject& other) const
+{
+    return std::visit([](auto& arg0,auto& arg1) { return arg0.z < arg1.z; }, data, other.data);
+}
+
+SVG::RenderObject& SVG::RenderObject::operator=(const RenderObject& other)
+{
+    objectClass = other.objectClass;
+    data = other.data;
+    return *this;
 }

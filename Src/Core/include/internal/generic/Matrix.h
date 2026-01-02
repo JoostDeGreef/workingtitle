@@ -9,6 +9,8 @@ template<size_t COLUMNS, size_t ROWS, typename T = Scalar>
 class Matrix
 {
 public:
+    template<size_t COLUMNS2, size_t ROWS2, typename T2> friend class Matrix;
+
     typedef Matrix<COLUMNS, ROWS, T> this_type;
 
     static constexpr size_t columns = COLUMNS;
@@ -29,7 +31,11 @@ public:
     const T & operator () (const size_t column, const size_t row) const;
           T & operator () (const size_t column, const size_t row);
 
-    template<size_t COLUMNS2> Matrix<COLUMNS2, ROWS, T> operator * (const Matrix<COLUMNS2, COLUMNS, T>& other) const;
+    const T& operator [] (const size_t index) const;
+          T& operator [] (const size_t index);
+
+    template<size_t COLUMNS2> const Matrix<COLUMNS2, ROWS, T>   operator *  (const Matrix<COLUMNS2, COLUMNS, T>& other) const;
+    template<size_t COLUMNS2>       Matrix<COLUMNS2, ROWS, T> & operator *= (const Matrix<COLUMNS2, COLUMNS, T>& other);
 
     template<typename... Args> void set(const Args & ... args);
     void fill(const T& value);
@@ -55,7 +61,7 @@ Matrix<COLUMNS, ROWS, T>::Matrix(const this_type& other)
 
 template<size_t COLUMNS, size_t ROWS, typename T> inline
 Matrix<COLUMNS, ROWS, T>::Matrix(this_type&& other) noexcept
-    : data(std::forward(other.data))
+    : data(std::move(other.data))
 {}
 
 template<size_t COLUMNS, size_t ROWS, typename T>
@@ -68,7 +74,7 @@ inline Matrix<COLUMNS, ROWS, T>& Matrix<COLUMNS, ROWS, T>::operator=(const this_
 template<size_t COLUMNS, size_t ROWS, typename T>
 inline Matrix<COLUMNS, ROWS, T>& Matrix<COLUMNS, ROWS, T>::operator=(this_type&& other) noexcept
 {
-    swap(other);
+    swap(std::move(other));
     return *this;
 }
 
@@ -87,13 +93,25 @@ inline void Matrix<COLUMNS, ROWS, T>::swap(this_type&& other)
 template<size_t COLUMNS, size_t ROWS, typename T>
 inline const T& Matrix<COLUMNS, ROWS, T>::operator()(const size_t column, const size_t row) const
 {
-    return data.at(M*row+column);
+    return data.at(columns * row + column);
 }
 
 template<size_t COLUMNS, size_t ROWS, typename T>
 inline T& Matrix<COLUMNS, ROWS, T>::operator()(const size_t column, const size_t row)
 {
     return data.at(columns * row + column);
+}
+
+template<size_t COLUMNS, size_t ROWS, typename T>
+inline const T& Matrix<COLUMNS, ROWS, T>::operator[](const size_t index) const
+{
+    return data.at(index);
+}
+
+template<size_t COLUMNS, size_t ROWS, typename T>
+inline T& Matrix<COLUMNS, ROWS, T>::operator[](const size_t index)
+{
+    return data.at(index);
 }
 
 template<size_t COLUMNS, size_t ROWS, typename T>
@@ -130,7 +148,13 @@ template<size_t COLUMNS, size_t ROWS, typename T>
 inline Matrix<ROWS, COLUMNS, T> Matrix<COLUMNS, ROWS, T>::transposed() const
 {
     Matrix<ROWS, COLUMNS, T> res;
-    // TODO
+    for (size_t c = 0; c < columns; ++c)
+    {
+        for (size_t r = 0; r < rows; ++r)
+        {
+            res(r, c) = this->operator()(c, r);
+        }
+    }
     return res;
 }
 
@@ -155,32 +179,39 @@ inline std::array<T, ROWS> Matrix<COLUMNS, ROWS, T>::getColumn(const size_t & co
     std::array<T, ROWS> res;
     for (size_t i = column,j=0; i < elements; i += columns,++j)
     {
-        res(j) = data(i);
+        res[j] = data[i];
     }
     return res;
 }
 
 template<size_t COLUMNS, size_t ROWS, typename T>
 template<size_t COLUMNS2>
-inline Matrix<COLUMNS2, ROWS, T> Matrix<COLUMNS, ROWS, T>::operator*(const Matrix<COLUMNS2, COLUMNS, T>& other) const
+inline const Matrix<COLUMNS2, ROWS, T> Matrix<COLUMNS, ROWS, T>::operator*(const Matrix<COLUMNS2, COLUMNS, T>& other) const
 {
     Matrix<COLUMNS2, ROWS, T> res;
     for (size_t c = 0; c < other.columns; ++c)
     {
-        auto column = other.getColumn();
+        auto column = other.getColumn(c);
         for (size_t r = 0; r < rows; ++r)
         {
             T value = 0;
             auto row = &data.data()[r*columns];
             for (size_t i = 0; i < columns; ++i)
             {
-                value += column(i) * row(i);
+                value += column[i] * row[i];
             }
-            res(r) = value;
+            res(c, r) = value;
         }
     }
 
 
     return res;
+}
+
+template<size_t COLUMNS, size_t ROWS, typename T>
+template<size_t COLUMNS2>
+inline Matrix<COLUMNS2, ROWS, T>& Matrix<COLUMNS, ROWS, T>::operator*=(const Matrix<COLUMNS2, COLUMNS, T>& other)
+{
+    return *this = *this * other;
 }
 

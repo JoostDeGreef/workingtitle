@@ -1,7 +1,6 @@
-#pragma once
+﻿#pragma once
 
-#include <array>
-
+#include "internal/generic/Matrix.h"
 #include "internal/generic/Normal.h"
 #include "internal/generic/Vertex.h"
 #include "internal/generic/Vertices.h"
@@ -15,6 +14,7 @@ public:
     Transformation(Transformation && other) noexcept;
     Transformation(const Vertex & translation);
     Transformation(const Normal& axis, const Scalar& angle);
+    Transformation(const Normal& axis, const Normal& up);
 
     Vertex operator * (const Vertex& v) const;
     Vertices operator * (const Vertices& v) const;
@@ -24,6 +24,6 @@ public:
 
     Transformation& operator = (const Transformation& other);
 protected:
-    std::array<Scalar, 12> transform;
+    Matrix<4,4,Scalar> transform;
 };
 

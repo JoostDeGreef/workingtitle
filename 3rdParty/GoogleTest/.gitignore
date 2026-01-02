@@ -1,11 +1,2 @@
-# source project
-googletest
-
-# generated directories/files
-src
-tmp
-include
-BuildNumber.txt
-
-# editor files
+﻿# editor files
 *~

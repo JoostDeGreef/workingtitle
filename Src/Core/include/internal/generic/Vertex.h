@@ -60,6 +60,8 @@ public:
     Scalar dist2(const Vertex& other) const;
     Scalar dist(const Vertex& other) const;
     Scalar length() const;
+
+    constexpr size_t size() const { return 3; }
 };
 
 inline Vertex::Vertex(const Vertex& other)

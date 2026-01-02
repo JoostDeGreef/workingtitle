@@ -1,4 +1,4 @@
-
+﻿
 #include "internal/geometry/Transformation.h"
 
 Transformation::Transformation()
@@ -6,7 +6,8 @@ Transformation::Transformation()
         {
             1, 0, 0, 0,
             0, 1, 0, 0,
-            0, 0, 1, 0
+            0, 0, 1, 0,
+            0, 0, 0, 1
         })
 {}
 
@@ -23,7 +24,8 @@ Transformation::Transformation(const Vertex & translation)
         {
             1, 0, 0, translation.x,
             0, 1, 0, translation.y,
-            0, 0, 1, translation.z
+            0, 0, 1, translation.z,
+            0, 0, 0, 1
         })
 {}
 
@@ -39,7 +41,21 @@ Transformation::Transformation(const Normal & axis, const Scalar & angle)
     { 
         x*x*(1-c)+1*c, y*x*(1-c)-z*s, z*x*(1-c)+y*s, 0,
         x*y*(1-c)+z*s, y*y*(1-c)+1*c, z*y*(1-c)-x*s, 0,
-        x*z*(1-c)-y*s, y*z*(1-c)+x*s, z*z*(1-c)+1*c, 1
+        x*z*(1-c)-y*s, y*z*(1-c)+x*s, z*z*(1-c)+1*c, 0,
+        0,             0,             0,             1
+    };
+}
+
+Transformation::Transformation(const Normal& axis, const Normal& up)
+{
+    auto xAxis = Normal(up.crossProduct(axis));
+    auto yAxis = Normal(axis.crossProduct(xAxis));
+    transform =
+    {
+        xAxis.x, xAxis.y, xAxis.z, 0,
+        yAxis.x, yAxis.y, yAxis.z, 0,
+        axis.x,  axis.y,  axis.z,  0,
+        0,       0,       0,       1
     };
 }
 
@@ -69,23 +85,7 @@ const Transformation Transformation::operator*(const Transformation& other) cons
 
 Transformation& Transformation::operator*=(const Transformation& other)
 {
-    Scalar m0  = transform[ 0] * other.transform[ 0] + transform[ 1] * other.transform[ 4] + transform[ 2] * other.transform[ 8];
-    Scalar m1  = transform[ 0] * other.transform[ 1] + transform[ 1] * other.transform[ 5] + transform[ 2] * other.transform[ 9];
-    Scalar m2  = transform[ 0] * other.transform[ 2] + transform[ 1] * other.transform[ 6] + transform[ 2] * other.transform[10];
-    Scalar m3  = transform[ 0] * other.transform[ 3] + transform[ 1] * other.transform[ 7] + transform[ 2] * other.transform[11] + transform[ 3];
-
-    Scalar m4  = transform[ 4] * other.transform[ 0] + transform[ 5] * other.transform[ 4] + transform[ 6] * other.transform[ 8];
-    Scalar m5  = transform[ 4] * other.transform[ 1] + transform[ 5] * other.transform[ 5] + transform[ 6] * other.transform[ 9];
-    Scalar m6  = transform[ 4] * other.transform[ 2] + transform[ 5] * other.transform[ 6] + transform[ 6] * other.transform[10];
-    Scalar m7  = transform[ 4] * other.transform[ 3] + transform[ 5] * other.transform[ 7] + transform[ 6] * other.transform[11] + transform[ 7];
-
-    Scalar m8  = transform[ 8] * other.transform[ 0] + transform[ 9] * other.transform[ 4] + transform[10] * other.transform[ 8];
-    Scalar m9  = transform[ 8] * other.transform[ 1] + transform[ 9] * other.transform[ 5] + transform[10] * other.transform[ 9];
-    Scalar m10 = transform[ 8] * other.transform[ 2] + transform[ 9] * other.transform[ 6] + transform[10] * other.transform[10];
-    Scalar m11 = transform[ 8] * other.transform[ 3] + transform[ 9] * other.transform[ 7] + transform[10] * other.transform[11] + transform[11];
-
-    transform = {m0,m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11};
-
+    transform *= other.transform;
     return *this;
 }
 
