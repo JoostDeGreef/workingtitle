@@ -26,7 +26,7 @@ SVG::SVG(const int width, const int height, const ViewBox& viewBox, const View& 
     , view(view)
     , style()
     , styles()
-    , renderObjects()
+    , objects()
 {
     Style arrowTip;
     arrowTip.fill = SVG::Color::Predefined::ContextStroke;
@@ -74,11 +74,14 @@ void SVG::writeToStream(std::ostream& os)
         << "  </marker>\n"
         << "</defs>\n";
     // sort the objects by depth
-    std::sort(renderObjects.begin(), renderObjects.end());
+    std::sort(objects.begin(), objects.end(), [](auto const& a, auto const& b)
+        {
+            return std::visit([](auto const& lhs, auto const& rhs) { return lhs.z < rhs.z; }, a, b);
+        });
     // write all objects
-    for (const auto& object : renderObjects)
+    for (const auto& object : objects)
     {
-        os << object;
+        std::visit([&os](auto& arg) { os << arg; }, object);
     }
     // footer
     os << "</svg>\n";
@@ -134,7 +137,11 @@ void SVG::addAxis(const Vertex& center, const double length)
         Vertex tail = project(axis[i * 2]);
         Vertex head = project(axis[i * 2 + 1]);
         if (!i) z = tail.z;
-        renderObjects.emplace_back(axisStyle.id, SVG::RenderObject::Axis({ tail.x, tail.y }, { head.x,head.y }, z));
+        objects.emplace_back(SVG::Axis(axisStyle.id, { tail.x, tail.y }, { head.x,head.y }, z));
+        // TODO: make this optional
+        style.fill = axisStyle.fill;
+        style.stroke = Color::Predefined::None;
+        addText(std::string(1, "XYZ"[i]), axis[i * 2 + 1]);
     }
 }
 
@@ -153,8 +160,18 @@ void SVG::addShape(const Shape& shape, const Vertex& center)
             points.emplace_back(display.x, display.y);
             z += display.z;
         }
-        renderObjects.emplace_back(style.id, SVG::RenderObject::Path(points, z / face.size()));
+        objects.emplace_back(SVG::Path(style.id, points, z / face.size()));
     }
+}
+
+void SVG::addText(const std::string& text, const Vertex& start)
+{
+    auto textStyle = style;
+    textStyle.custom = "text-anchor: \"start\";\n  font: italic 13px sans-serif;";
+    setStyleId(textStyle);
+    Vertex p = project(start);
+    objects.emplace_back(SVG::Text(textStyle.id, text, { p.x,p.y }, p.z));
+
 }
 
 Vertex SVG::project(const Vertex& v) const
@@ -220,14 +237,15 @@ std::ostream& operator<<(std::ostream& os, const SVG::Style& style)
         << (style.custom.empty() ? "}\n" : ("  " + style.custom + ";\n}\n"));
 }
 
-std::ostream& operator<<(std::ostream& os, const SVG::RenderObject::Axis& axis)
+std::ostream& operator<<(std::ostream& os, const SVG::Axis& axis)
 {
-    os << "<path d=\"M" << std::setprecision(5);
-    os << axis.tail.x << "," << axis.tail.y << " ";
-    return os << axis.head.x << "," << axis.head.y << "\"";
+    return os << "<path d=\"M" << std::setprecision(5)
+              << axis.tail.x << "," << axis.tail.y << " "
+              << axis.head.x << "," << axis.head.y << "\""
+              << " class=\"" << axis.classId << "\" />\n";
 }
 
-std::ostream& operator<<(std::ostream& os, const SVG::RenderObject::Path& path)
+std::ostream& operator<<(std::ostream& os, const SVG::Path& path)
 {
     if (!path.points.empty())
     {
@@ -237,19 +255,15 @@ std::ostream& operator<<(std::ostream& os, const SVG::RenderObject::Path& path)
             os << p.x << "," << p.y << " ";
         }
         const auto& p = path.points.front();
-        return os << p.x << "," << p.y << "\"";
+        os << p.x << "," << p.y << "\"";
+        os << " class=\"" << path.classId << "\" />\n";
     }
-    else
-    {
-        return os << "<path";
-    }
+    return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const SVG::RenderObject& object)
+std::ostream& operator<<(std::ostream& os, const SVG::Text& text)
 {
-    std::visit([&os](auto& arg) { os << arg; }, object.data);
-    os << " class=\"" << object.objectClass << "\" />\n";
-    return os;
+    return os << "<text x=\"" << text.point.x << "\" y=\"" << text.point.y << "\" class=\"" << text.classId << "\">" << text.text << "</text>\n";
 }
 
 bool SVG::Style::operator==(const Style& other) const
@@ -300,14 +314,16 @@ void SVG::View::initTransformation()
     transformation = t*r;
 }
 
-bool SVG::RenderObject::operator<(const RenderObject& other) const
-{
-    return std::visit([](auto& arg0,auto& arg1) { return arg0.z < arg1.z; }, data, other.data);
-}
+//bool SVG::RenderObject::operator<(const RenderObject& other) const
+//{
+//    return std::visit([](auto& arg0,auto& arg1) { return arg0.z < arg1.z; }, data, other.data);
+//}
+//
+//SVG::RenderObject& SVG::RenderObject::operator=(const RenderObject& other)
+//{
+//    objectClass = other.objectClass;
+//    data = other.data;
+//    return *this;
+//}
 
-SVG::RenderObject& SVG::RenderObject::operator=(const RenderObject& other)
-{
-    objectClass = other.objectClass;
-    data = other.data;
-    return *this;
-}
+

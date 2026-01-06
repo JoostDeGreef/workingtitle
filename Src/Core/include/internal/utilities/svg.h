@@ -151,51 +151,54 @@ public:
         friend std::ostream& operator <<(std::ostream& os, const Style &style);
     };
 
-    struct RenderObject
+    struct Axis
     {
-        struct Axis
-        {
-            Axis(const Point& tail, const Point& head, const Scalar& z)
-                : tail(tail)
-                , head(head)
-                , z(z)
-            {}
-
-            Point tail;
-            Point head;
-            Scalar z;
-
-            friend std::ostream& operator <<(std::ostream& os, const RenderObject::Axis& axis);
-        };
-        struct Path
-        {
-            Path(const Points& points, const Scalar & z)
-                : points(points)
-                , z(z)
-            {}
-
-            Points points;
-            Scalar z;
-
-            friend std::ostream& operator <<(std::ostream& os, const RenderObject::Path& path);
-        };
-
-        RenderObject(const std::string & objectClass, const Axis & axis)
-            : objectClass(objectClass)
-            , data(axis)
-        {}
-        RenderObject(const std::string& objectClass, const Path & path)
-            : objectClass(objectClass)
-            , data(path)
+        Axis(const std::string & classId, const Point& tail, const Point& head, const Scalar& z)
+            : classId(classId)
+            , tail(tail)
+            , head(head)
+            , z(z)
         {}
 
-        bool operator < (const RenderObject& other) const;
-        RenderObject& operator = (const RenderObject& other);
+        std::string classId;
+        Point tail;
+        Point head;
+        Scalar z;
 
-        friend std::ostream& operator <<(std::ostream& os, const RenderObject& object);
-    private:
-        std::string objectClass;
-        std::variant<Axis,Path> data;
+        friend std::ostream& operator <<(std::ostream& os, const Axis & axis);
+    };
+
+    struct Path
+    {
+        Path(const std::string& classId, const Points& points, const Scalar & z)
+            : classId(classId)
+            , points(points)
+            , z(z)
+        {}
+
+        std::string classId;
+        Points points;
+        Scalar z;
+
+        friend std::ostream& operator <<(std::ostream& os, const Path & path);
+    };
+
+    struct Text
+    {
+        Text(const std::string& classId, const std::string & text, const Point& point, const Scalar& z)
+            : classId(classId)
+            , text(text)
+            , point(point)
+            , z(z)
+        {
+        }
+
+        std::string classId;
+        std::string text;
+        Point point;
+        Scalar z;
+
+        friend std::ostream& operator <<(std::ostream& os, const Text& text);
     };
 
     SVG(const int width, const int height, const ViewBox& viewBox, const View & view = View());
@@ -214,6 +217,7 @@ public:
 
     void addAxis(const Vertex & center, const double length);
     void addShape(const Shape& shape, const Vertex& center);
+    void addText(const std::string &text, const Vertex& start);
 
     friend std::ostream& operator << (std::ostream& os, const SVG& svg);
 private:
@@ -224,15 +228,16 @@ private:
 
     Style style;
     std::vector<Style> styles;
-    std::vector<RenderObject> renderObjects;
+    std::vector<std::variant<Axis, Path, Text>> objects;
 
     Vertex project(const Vertex & v) const;
 };
 
 std::ostream& operator << (std::ostream& os, const SVG& svg);
+std::ostream& operator << (std::ostream& os, const SVG::Axis& axis);
 std::ostream& operator << (std::ostream& os, const SVG::Color& color);
-std::ostream& operator << (std::ostream& os, const SVG::RenderObject& object);
-std::ostream& operator << (std::ostream& os, const SVG::RenderObject::Path& path);
-std::ostream& operator << (std::ostream& os, const SVG::Style& style);
-std::ostream& operator << (std::ostream& os, const SVG::ViewBox& viewBox);
+std::ostream& operator << (std::ostream& os, const SVG::Path& path);
 std::ostream& operator << (std::ostream& os, const SVG::StrokeLineJoin& strokeLineJoin);
+std::ostream& operator << (std::ostream& os, const SVG::Style& style);
+std::ostream& operator << (std::ostream& os, const SVG::Text& text);
+std::ostream& operator << (std::ostream& os, const SVG::ViewBox& viewBox);

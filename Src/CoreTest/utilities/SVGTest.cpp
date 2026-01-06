@@ -19,7 +19,7 @@ protected:
     {
         auto& style = svg.getStyle();
         style.fillOpacity = 1;
-        style.fill = SVG::Color::Predefined::None;
+        style.fill = SVG::Color::Predefined::Black;
         style.stroke = SVG::Color::Predefined::Black;
         svg.setView(SVG::View(center, center - dir, up));
         svg.addAxis({ 0, 0, 0 }, 30);
@@ -36,10 +36,10 @@ TEST_F(SVGTest, Box)
     Shape box = ShapeFactory::Box({-1,-1,-1},{1,1,1});
     box.scale(20);
 
-    addShape(svg, box, {  50,  50, 0 }, { 1,0,0 }, { 0,-1,0 });
-    addShape(svg, box, { 150,  50, 0 }, { 0,1,0 }, { 0,0,-1 });
-    addShape(svg, box, {  50, 150, 0 }, { 0,0,1 }, { -1,0,0 });
-    addShape(svg, box, { 150, 150, 0 }, { 2,1,1 }, { 0,-1,0 });
+    addShape(svg, box, {  50,  50, 0 }, {  0,0,1 }, {  0, 1, 0 });
+    addShape(svg, box, { 150,  50, 0 }, {  0,1,0 }, {  0, 0,-1 }); 
+    addShape(svg, box, {  50, 150, 0 }, { -1,0,0 }, {  0, 0,-1 }); 
+    addShape(svg, box, { 150, 150, 0 }, {  1,2,1 }, {  0, 0,-1 }); 
 
     svg.writeToFile("Box.svg");
 }
@@ -50,10 +50,10 @@ TEST_F(SVGTest, Dodecahedron)
     Shape dodecahedron = ShapeFactory::Dodecahedron();
     dodecahedron.scale(40);
 
-    addShape(svg, dodecahedron, { 50,  50, 0 }, { 1,0,0 }, { 0,-1,0 });
-    addShape(svg, dodecahedron, { 150,  50, 0 }, { 0,1,0 }, { 0,0,-1 });
-    addShape(svg, dodecahedron, { 50, 150, 0 }, { 0,0,1 }, { -1,0,0 });
-    addShape(svg, dodecahedron, { 150, 150, 0 }, { 2,1,1 }, { 0,-1,0 });
+    addShape(svg, dodecahedron, {  50,  50, 0 }, {  0,0,1 }, {  0, 1, 0 });
+    addShape(svg, dodecahedron, { 150,  50, 0 }, {  0,1,0 }, {  0, 0,-1 });
+    addShape(svg, dodecahedron, {  50, 150, 0 }, { -1,0,0 }, {  0, 0,-1 });
+    addShape(svg, dodecahedron, { 150, 150, 0 }, {  1,2,1 }, {  0, 0,-1 });
 
     svg.writeToFile("Dodecahedron.svg");
 }
